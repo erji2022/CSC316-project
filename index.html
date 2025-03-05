@@ -5,75 +5,75 @@
     <title>CSC316 Project
     </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/style.css">
 
 </head>
 <body>
-
-    <div class="container-fluid" style="height: 100vh; padding-top: 1vh">
+<!-- Dot navigation -->
+<div class="dots-container" id="dots-container"></div>
+<!-- All pages belong under here -->
+<div class="scroll-container" id="scroll-container">
+    <!-- Page 1 -->
+    <div class="page" id="page1">
         <div class="row">
-            <div class="col-10 offset-1" style="border: thin solid grey; border-radius: 5px;">
-    
-                <!-- HEADING -->
-                <div class="row d-flex align-items-center" 
-                     style="height: 10vh; padding: 0; background: #bcd4e6; border-bottom: thin solid grey">
-                    <h1 style="text-align: center">Prototype V1</h1>
+            <h1 class="page-title">Prototype V1</h1>
+        </div>
+        <div class="row visualization-container">
+            <div class="col-md-6 visualization-col">
+                <h5 class="vis-title">Visualization 1</h5>
+                <div id="vis1" class="vis-placeholder">
+                    D3 Visualization 1 Here
                 </div>
-    
-                <!-- Visualizations -->
-                
-                <div class="row"
-                     style=" padding-top: 0; padding-left: 1vh; padding-right: 1vh; padding-bottom: 1vh">
-                    <div class="col">
-                        <div class="row"
-                             style="border: thin solid rgba(211,211,211,0.73); border-radius: 5px; background: rgba(214,226,233,0.42); padding: 10px;">
+            </div>
 
-                            <!-- First Row of Visualizations -->
-                            <div class="row">
-                                <div class="col-md-6 d-flex flex-column align-items-center" style="padding: 10px;">
-                                    <h5>Visualization 1</h5>
-                                    <div id="vis1" 
-                                         style="width: 100%; height: 30vh; border: 2px dashed grey; display: flex; align-items: center; justify-content: center;">
-                                        D3 Visualization 1 Here
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 d-flex flex-column align-items-center" style="padding: 10px;">
-                                    <h5>Visualization 2</h5>
-                                    <div id="vis2" 
-                                         style="width: 100%; height: 30vh; border: 2px dashed grey; display: flex; align-items: center; justify-content: center;">
-                                        D3 Visualization 2 Here
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Second Row of Planned Visualizations -->
-                            <div class="row">
-                                <div class="col-md-6 d-flex flex-column align-items-center" style="padding: 10px;">
-                                    <h5>Planned Visualization 3</h5>
-                                    <div id="vis3" 
-                                         style="width: 100%; height: 30vh; border: 2px dashed grey; display: flex; align-items: center; justify-content: center;">
-                                        Placeholder for Future Visualization
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 d-flex flex-column align-items-center" style="padding: 10px;">
-                                    <h5>Planned Visualization 4</h5>
-                                    <div id="vis4" 
-                                         style="width: 100%; height: 30vh; border: 2px dashed grey; display: flex; align-items: center; justify-content: center;">
-                                        Placeholder for Future Visualization
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+            <div class="col-md-6 visualization-col">
+                <h5 class="vis-title">Visualization 2</h5>
+                <div id="vis2" class="vis-placeholder">
+                    D3 Visualization 2 Here
                 </div>
-
             </div>
         </div>
     </div>
-    
+
+    <!-- Page 2 -->
+    <div class="page" id="page2">
+        <div class="row visualization-container">
+            <div class="col-md-6 visualization-col">
+                <h5 class="vis-title">Visualization 3</h5>
+                <div id="vis3" class="vis-placeholder">
+                    D3 Visualization 3 Here
+                </div>
+            </div>
+
+            <div class="col-md-6 visualization-col">
+                <h5 class="vis-title">Visualization 4</h5>
+                <div id="vis4" class="vis-placeholder">
+                    D3 Visualization 4 Here
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3 -->
+    <div class="page" id="page3">
+        <div class="row visualization-container">
+            <div class="col-md-6 visualization-col">
+                <h5 class="vis-title">Visualization 5</h5>
+                <div id="vis5" class="vis-placeholder">
+                    D3 Visualization 5 Here
+                </div>
+            </div>
+
+            <div class="col-md-6 visualization-col">
+                <h5 class="vis-title">Visualization 6</h5>
+                <div id="vis6" class="vis-placeholder">
+                    D3 Visualization 6 Here
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -89,8 +89,6 @@
 <script src="https://d3js.org/d3-geo.v1.min.js"></script>
 
 <!-- OWN JS -->
-<script src="js/mapVis.js"></script>
-<script src="js/pieChart.js"></script>
-<script src="js/main.js"></script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
