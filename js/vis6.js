@@ -151,7 +151,7 @@ export function renderTempSeaLevelChart() {
                 .attr("d", seaLine);
 
             const xAxis = d3.axisBottom(x)
-                .tickValues(x.domain().filter((d, i) => !(i % 5)));
+                .tickValues(x.domain().filter((d, i) => !(i % 10)));
             svg.append("g")
                 .attr("transform", `translate(0, ${height})`)
                 .call(xAxis);
