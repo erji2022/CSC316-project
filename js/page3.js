@@ -1,4 +1,5 @@
-import {renderClimateChart} from "./vis5.js";
+import {renderTempCO2Chart} from "./vis5.js";
+import {renderTempSeaLevelChart} from "./vis6.js";
 
 export function initPage3() {
     const pageElement = document.querySelector('[id="page3"]');
@@ -6,8 +7,8 @@ export function initPage3() {
 
     function initializeVisualizations() {
         // Your vis5 and vis6 initialization code
-        renderClimateChart();
-        d3.select('#vis6').html('Vis 6 Initialized');
+        renderTempCO2Chart();
+        renderTempSeaLevelChart()
     }
 
     pageElement.addEventListener('click', handlePageClick);
