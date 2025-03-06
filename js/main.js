@@ -1,7 +1,7 @@
 import {ScrollManager} from './scroll.js';
-import {initPage1} from './page1';
-import {initPage2} from './page2';
-import {initPage3} from './page3';
+import {initPage1} from './page1.js';
+import {initPage2} from './page2.js';
+import {initPage3} from './page3.js';
 
 // Initialize scroll manager
 const scrollManager = new ScrollManager();

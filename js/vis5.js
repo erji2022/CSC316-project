@@ -34,7 +34,7 @@ export function renderClimateChart() {
 
     Promise.all([
         d3.text("data/co2-mm-mlo.txt"),
-        d3.text("data/land-ocean-temperature.text")
+        d3.text("data/land-ocean-temperature.txt")
     ]).then(([co2Raw, tempRaw]) => {
         const co2Data = parseCO2(co2Raw);
         const tempData = parseTemp(tempRaw);
@@ -55,6 +55,32 @@ export function renderClimateChart() {
                 })
             }
             combinedData.sort((a, b) => a.temp - b.temp);
+
+            const x = d3.scaleBand()
+                .domain(combinedData.map(d => d.year))
+                .range([0, width])
+                .padding(0.1);
+
+            const yTemp = d3.scaleLinear()
+                .domain([d3.min(combinedData, d => d.temp), d3.max(combinedData, d => d.temp)])
+                .nice()
+                .range([height, 0]);
+
+            const yCO2 = d3.scaleLinear()
+                .domain([d3.min(combinedData, d => d.co2), d3.max(combinedData, d => d.co2)])
+                .nice()
+                .range([height, 0]);
+
+        //     svg.selectAll(".bar")
+        //         .data(combinedData)
+        //         .enter()
+        //         .append("rect")
+        //         .attr("class", "bar")
+        //         .attr("x", d => x(d.year))
+        //         .attr("y", d => d.temp >= 0 ? yTemp(d.temp) : yTemp(0))
+        //         .attr("width", x.bandwidth())
+        //         .attr("height", d => Math.abs(yTemp(d.temp) - yTemp(0)))
+        //         .attr("fill", d => d.temp < 0 ? "steelblue" : "tomato");
         })
     })
 }
