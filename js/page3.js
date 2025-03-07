@@ -1,16 +1,15 @@
+// page3.js
 export function initPage3() {
-    const pageElement = document.querySelector('[id="page3"]');
-    initializeVisualizations();
+    const pageElement = document.querySelector('#page3');
 
     function initializeVisualizations() {
-        // Your vis5 and vis6 initialization code
-        d3.select('#vis5').html('Vis 5 Initialized');
-        d3.select('#vis6').html('Vis 6 Initialized');
+        // Visualization for Global Plastic Waste Distribution
+        d3.select('#vis5').html('Visualization for Global Plastic Waste Distribution Initialized');
     }
 
-    pageElement.addEventListener('click', handlePageClick);
+    initializeVisualizations();
 
-    function handlePageClick() {
-        console.log('Clicked page 3');
-    }
+    pageElement.addEventListener('click', () => {
+        console.log('Clicked Plastic Waste Page');
+    });
 }

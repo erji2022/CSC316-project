@@ -24,7 +24,7 @@ export class ScrollManager {
 
     // Add scroll event
     initEventListeners() {
-        this.container.addEventListener('scroll', () => this.handleScroll());
+        this.container.addEventListener('wheel', (e) => this.handleScroll(e), { passive: false });
     }
 
     // Scroll to the correct page on click
@@ -44,15 +44,32 @@ export class ScrollManager {
     }
 
     // Handle scrolling
-    handleScroll() {
-        if (!this.isScrolling) {
-            this.isScrolling = true;
-            window.requestAnimationFrame(() => {
-                this.currentPage = Math.round(this.container.scrollTop / window.innerHeight);
-                this.updateDots();
-                this.isScrolling = false;
-            });
+    handleScroll(e) {
+        // Prevent native scrolling
+        e.preventDefault();
+
+        // Only allow one scroll at a time
+        if (this.isScrolling) return;
+        this.isScrolling = true;
+
+        // Determine direction: deltaY > 0 means scrolling down, deltaY < 0 scrolling up
+        if (e.deltaY > 0) {
+            // Move to next page if exists
+            if (this.currentPage < this.pages.length - 1) {
+                this.currentPage++;
+            }
+        } else {
+            // Move to previous page if exists
+            if (this.currentPage > 0) {
+                this.currentPage--;
+            }
         }
+        this.scrollToPage(this.currentPage);
+
+        // Reset isScrolling flag after the smooth scroll animation completes
+        setTimeout(() => {
+            this.isScrolling = false;
+        }, 1000);
     }
 
     // Update the dots on the right

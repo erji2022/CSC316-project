@@ -2,88 +2,158 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>CSC316 Project
-    </title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <title>CSC316 Project - Our Planet at a Crossroads</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-
 </head>
 <body>
 <!-- Dot navigation -->
 <div class="dots-container" id="dots-container"></div>
 <!-- All pages belong under here -->
 <div class="scroll-container" id="scroll-container">
-    <!-- Page 1 -->
+
+    <!-- Page 0: Introduction & Hook -->
+    <div class="page" id="page0">
+        <div class="row">
+            <h1 class="page-title">Our Planet at a Glance</h1>
+        </div>
+        <div class="row story-container">
+            <div class="col-md-12">
+                <p>
+                    Welcome to "Our Planet at a Crossroads." This interactive journey explores how human activities have reshaped our Earth through rising temperatures, deteriorating air quality, and mounting waste challenges.
+                </p>
+                <p>
+                    Scroll down to discover how climate change, pollution, and mismanaged waste are interconnected – urging us all to reflect and act.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 1: Global Warming -->
     <div class="page" id="page1">
         <div class="row">
-            <h1 class="page-title">Prototype V1</h1>
+            <h1 class="page-title">Global Warming: Rising Temperatures & Melting Ice</h1>
+        </div>
+        <div class="row story-container">
+            <div class="col-md-12">
+                <p>
+                    Our planet’s temperature has been on a steady rise due to increased greenhouse gas emissions. This page explores global temperature anomalies and the resulting changes in our ice caps and sea levels.
+                </p>
+            </div>
         </div>
         <div class="row visualization-container">
             <div class="col-md-6 visualization-col">
-                <h5 class="vis-title">Visualization 1</h5>
+                <h5 class="vis-title">Temperature & CO₂ Trends</h5>
                 <div id="vis1" class="vis-placeholder">
-                    D3 Visualization 1 Here
+                    D3 Visualization: Dual-Axis Chart for Temperature & CO₂
                 </div>
             </div>
-
             <div class="col-md-6 visualization-col">
-                <h5 class="vis-title">Visualization 2</h5>
+                <h5 class="vis-title">Sea Level Rise</h5>
                 <div id="vis2" class="vis-placeholder">
-                    D3 Visualization 2 Here
+                    D3 Visualization: Sea Level Change
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Page 2 -->
+    <!-- Page 2: Air Quality Degradation -->
     <div class="page" id="page2">
+        <div class="row">
+            <h1 class="page-title">Air Quality Degradation: Polluted Skies</h1>
+        </div>
+        <div class="row story-container">
+            <div class="col-md-12">
+                <p>
+                    Air pollution poses a severe risk to public health. Here, we dive into trends and hotspots of pollutants like PM2.5, PM10, and NO₂ across various regions.
+                </p>
+            </div>
+        </div>
         <div class="row visualization-container">
             <div class="col-md-6 visualization-col">
-                <h5 class="vis-title">Visualization 3</h5>
+                <h5 class="vis-title">Pollution Hotspots</h5>
                 <div id="vis3" class="vis-placeholder">
-                    D3 Visualization 3 Here
+                    D3 Visualization: Interactive Map / Tree Map for Air Pollution
                 </div>
             </div>
-
             <div class="col-md-6 visualization-col">
-                <h5 class="vis-title">Visualization 4</h5>
+                <h5 class="vis-title">Pollution Trends</h5>
                 <div id="vis4" class="vis-placeholder">
-                    D3 Visualization 4 Here
+                    D3 Visualization: Stacked Line Chart for Air Pollutants
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Page 3 -->
+    <!-- Page 3: Plastic Waste -->
     <div class="page" id="page3">
-        <div class="row visualization-container">
-            <div class="col-md-6 visualization-col">
-                <h5 class="vis-title">Visualization 5</h5>
-                <div id="vis5" class="vis-placeholder">
-                    D3 Visualization 5 Here
-                </div>
+        <div class="row">
+            <h1 class="page-title">Plastic Waste: A Growing Crisis</h1>
+        </div>
+        <div class="row story-container">
+            <div class="col-md-12">
+                <p>
+                    Plastic waste has become one of the most visible signs of our environmental mismanagement. This page examines global plastic waste generation and its distribution.
+                </p>
             </div>
-
-            <div class="col-md-6 visualization-col">
-                <h5 class="vis-title">Visualization 6</h5>
-                <div id="vis6" class="vis-placeholder">
-                    D3 Visualization 6 Here
+        </div>
+        <div class="row visualization-container">
+            <div class="col-md-12 visualization-col">
+                <h5 class="vis-title">Global Plastic Waste Distribution</h5>
+                <div id="vis5" class="vis-placeholder">
+                    D3 Visualization: Map / Bar Chart for Plastic Waste
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Page 4: Water Quality -->
+    <div class="page" id="page4">
+        <div class="row">
+            <h1 class="page-title">Water Quality: Deteriorating Resources</h1>
+        </div>
+        <div class="row story-container">
+            <div class="col-md-12">
+                <p>
+                    Water quality is crucial for life, yet many regions are experiencing rapid degradation. This page focuses on trends in water quality metrics such as pH levels, highlighting areas in need of urgent attention.
+                </p>
+            </div>
+        </div>
+        <div class="row visualization-container">
+            <div class="col-md-12 visualization-col">
+                <h5 class="vis-title">Water Quality Trends</h5>
+                <div id="vis6" class="vis-placeholder">
+                    D3 Visualization: Heatmap for Water Quality (pH Levels)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 4: Conclusion & Call-to-Action -->
+    <div class="page" id="page5">
+        <div class="row">
+            <h1 class="page-title">Reflect & Act</h1>
+        </div>
+        <div class="row story-container">
+            <div class="col-md-12">
+                <p>
+                    Our interactive journey reveals the interconnectedness of climate change, air quality, and waste management. The data calls on each of us to reflect on our actions and support sustainable practices.
+                </p>
+                <p>
+                    Join the conversation and help drive the change our planet urgently needs.
+                </p>
+                <button id="restartBtn" class="btn btn-primary">Restart Story</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-
-
-
 <!-- BOOTSTRAP -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- d3 -->
 <script src="https://d3js.org/d3.v7.min.js"></script>
-
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 <script src="https://d3js.org/d3-geo.v1.min.js"></script>
