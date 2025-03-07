@@ -1,4 +1,4 @@
-// vis6.js
+// TemperatureSeaLevelChart.js
 // This module creates a dual-axis chart with Temperature (bars) and Sea Level (line)
 // For Sea Level, it loads two data files:
 //   - Old file: "data/global-average-absolute-sea-level-change.csv"
@@ -6,8 +6,8 @@
 // The new file’s sea-level values are normalized (via an offset) using overlapping years.
 
 export function renderTempSeaLevelChart() {
-    const container = d3.select("#vis6");
-    const containerWidth = parseInt(container.style("width")) || 700;
+    const container = d3.select("#vis2");
+    const containerWidth = parseInt(container.style("width"));
     const containerHeight = 400;
     const margin = {top: 20, right: 60, bottom: 40, left: 50};
     const width = containerWidth - margin.left - margin.right;

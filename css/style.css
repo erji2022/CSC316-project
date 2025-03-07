@@ -67,7 +67,7 @@ body {
 /* Visualization Container */
 .visualization-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     gap: 20px;
 }
@@ -141,7 +141,7 @@ body {
 }
 
 .vis-placeholder {
-    width: 100%;
+    width: 600px;
     min-height: 30vh;
     height: auto;
     border: 2px dashed grey;

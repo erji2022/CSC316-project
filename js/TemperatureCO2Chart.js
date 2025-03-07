@@ -1,10 +1,10 @@
-// vis5.js
+// TemperatureCO2Chart.js
 // This module creates the combined Temperature (bars) and CO₂ (line) chart in #vis5
 
 export function renderTempCO2Chart() {
-    const container = d3.select("#vis5");
+    const container = d3.select("#vis1");
 
-    const containerWidth = parseInt(container.style("width")) || 700;
+    const containerWidth = parseInt(container.style("width"));
     const containerHeight = 400;
 
     const margin = {top: 20, right: 60, bottom: 40, left: 50};
