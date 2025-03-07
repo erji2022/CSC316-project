@@ -1,5 +1,7 @@
 /* Base styles */
-::-webkit-scrollbar { display: none; }
+::-webkit-scrollbar {
+    display: none;
+}
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -123,6 +125,7 @@ body {
     .visualization-col {
         max-width: 100%;
     }
+
     .page-title {
         font-size: 2rem;
     }
@@ -145,8 +148,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-/* Hide Scrollbar for Firefox */
-.scroll-container {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
+    /* Hide Scrollbar for Firefox */
+
+    .scroll-container {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+    }
 }
