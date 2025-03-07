@@ -2,22 +2,78 @@
 ::-webkit-scrollbar { display: none; }
 
 body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
-    overflow-y: hidden;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
 }
 
-/* Scroll container */
+/* Scroll Container */
 .scroll-container {
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-    height: 100vh;
     scroll-behavior: smooth;
+    overflow-y: scroll;
+    height: 100vh;
 }
 
+/* Page Layout */
 .page {
-    width: 100vw;
+    /* Change from min-height to fixed height for consistent scrolling */
     height: 100vh;
-    scroll-snap-align: start;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Custom Backgrounds by Page */
+#page1 {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+#page2 {
+    background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%);
+}
+
+#page3 {
+    background: linear-gradient(135deg, #fefcea 0%, #f1da36 100%);
+}
+
+#page4 {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+}
+
+/* Page Title */
+.page-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    text-align: center;
+}
+
+/* Story Text Container */
+.story-container {
+    margin-bottom: 30px;
+    max-width: 800px;
+    text-align: center;
+    padding: 0 10px;
+}
+
+/* Visualization Container */
+.visualization-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Visualization Columns */
+.visualization-col {
+    background: #ffffff;
+    border: 2px solid #ddd;
     padding: 20px;
 }
 
@@ -30,55 +86,51 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    z-index: 1000;
+    z-index: 100;
 }
 
 .dot {
     width: 12px;
     height: 12px;
+    background: #bdc3c7;
     border-radius: 50%;
-    background-color: #ccc;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background 0.3s ease;
 }
 
-.dot.active { background-color: #333; }
-
-/* Main content styles */
-.main-container {
-    height: 100vh;
-    padding-top: 1vh;
+.dot.active {
+    background: #16a085;
 }
 
-.content-container {
-    border: thin solid grey;
-    border-radius: 5px;
+/* Button Styling */
+.btn {
+    background: #16a085;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
-.title{
-    height: 10vh;
-    padding: 0;
-    background: #bcd4e6;
-    border-bottom: thin solid grey;
-    display: flex;
-    align-items: center;
+.btn:hover {
+    background: #138d75;
 }
 
-.page-title {
-    text-align: center;
-    width: 100%;
-    margin: 0;
+/* Responsiveness */
+@media (max-width: 768px) {
+    .visualization-col {
+        max-width: 100%;
+    }
+    .page-title {
+        font-size: 2rem;
+    }
 }
 
-.visualization-container {
-    padding: 0 1vh 1vh;
-}
-
-.visualization-col {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Hide Scrollbar for Webkit Browsers */
+.scroll-container::-webkit-scrollbar {
+    display: none;
 }
 
 .vis-title {
@@ -93,4 +145,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+/* Hide Scrollbar for Firefox */
+.scroll-container {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
 }
