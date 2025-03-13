@@ -1,5 +1,5 @@
 // Global configuration and state
-const svgWidth = 1000;
+const svgWidth = 1200;
 const svgHeight = 700;
 const legendHeight = 40;
 const treemapHeight = 350;
@@ -133,7 +133,6 @@ function renderTreemap(metric, data, treemapGroup, svgWidth, treemapHeight, colo
         .attr('fill', d => colorScale(d.parent.data.name))
         .attr('stroke', 'black')
         .on('click', (event, d) => {
-            selectedCountryLabel.text(d.data.name);
             updateLineChart(d.data.name);
         });
 
@@ -221,7 +220,7 @@ function updateLineChart(countryName) {
         }));
     }
 
-    chartTitle.text(`Pollutant Trends for ${countryName}`);
+    chartTitle.text(`${countryName}`);
     cData.sort((a, b) => d3.ascending(a.year, b.year));
     const xDomain = d3.extent(cData, d => d.year);
     let maxVal = 0;
@@ -320,8 +319,34 @@ function updateLineChart(countryName) {
 // ------------------------
 
 function initializeVisualization() {
-    // Create container and SVG elements.
     const containerDiv = d3.select('#vis3').html('');
+
+    // Create control container
+    const controls = containerDiv.append('div')
+        .style('display', 'flex')
+        .style('gap', '5px')
+        .style('margin-bottom', '5px');
+
+    // Metric toggle buttons
+    const metricToggle = controls.append('div')
+        .attr('class', 'metric-toggle')
+        .style('display', 'flex')
+        .style('gap', '5px');
+
+    // Global data button
+    controls.append('button')
+        .attr('class', 'global-btn btn btn-primary')
+        .style('padding', '8px 12px')
+        .style('border-radius', '4px')
+        .style('border', 'none')
+        .style('cursor', 'pointer')
+        .text('View Global Data')
+        .on('click', () => {
+            updateLineChart('GLOBAL');
+        });
+
+
+    // Create SVG elements
     const svg = containerDiv.append('svg')
         .attr('width', svgWidth)
         .attr('height', svgHeight)
@@ -336,19 +361,10 @@ function initializeVisualization() {
     const lineChartGroup = svg.append('g')
         .attr('transform', `translate(${margin.left}, ${legendHeight + treemapHeight + 10})`);
 
-    // A large text label at the bottom for the selected country.
-    // (We also capture it for use in updateLineChart.)
-    window.selectedCountryLabel = svg.append('text')
-        .attr('x', svgWidth / 2)
-        .attr('y', svgHeight - 10)
-        .attr('fill', 'white')
-        .attr('text-anchor', 'middle')
-        .style('font-size', '24px')
-        .text('');
-
     // Define chart parameters for the line chart.
     window.chartWidth = svgWidth - margin.left - margin.right;
     window.chartHeight = lineChartHeight;
+
 
     // Create groups for the line chart elements (captured in the global scope for updateLineChart).
     window.xAxisGroup = lineChartGroup.append('g')
@@ -370,6 +386,34 @@ function initializeVisualization() {
     window.pollutantScale = d3.scaleOrdinal()
         .domain(['pm25_concentration', 'no2_concentration', 'pm10_concentration'])
         .range(['#00FFFF', '#FF00FF', '#FFFF00']);
+
+    window.lineLegendGroup = lineChartGroup.append('g')
+        .attr('class', 'line-legend')
+        // Position the legend: adjust 'chartWidth' and a small margin (e.g., 10)
+        .attr('transform', `translate(${chartWidth - 150}, ${margin.top})`);
+
+    // Clear any previous legend items (if necessary)
+    window.lineLegendGroup.selectAll('*').remove();
+
+    // Add legend items for each pollutant
+    pollutantsList.forEach((p, i) => {
+        const legendItem = window.lineLegendGroup.append('g')
+            .attr('transform', `translate(0, ${i * 20})`);
+
+        // Add a colored rectangle for the legend swatch
+        legendItem.append('rect')
+            .attr('width', 12)
+            .attr('height', 12)
+            .attr('fill', pollutantScale(p.key));
+
+        // Add text next to the swatch
+        legendItem.append('text')
+            .attr('x', 18)
+            .attr('y', 10)
+            .attr('fill', 'white')
+            .style('font-size', '12px')
+            .text(p.label);
+    });
 
     // Load CSV data and build visualizations.
     d3.csv("data/air_quality.csv").then(rawData => {
@@ -408,36 +452,39 @@ function initializeVisualization() {
         // Render region legend.
         renderRegionLegend(legendGroup, regions, colorScale);
 
-        // Create a toggle button to change the metric.
-        const toggleButton = containerDiv.insert('button', ':first-child')
-            .text(`Metric: ${currentMetric === 'pm25_concentration' ? 'PM2.5' : currentMetric === 'no2_concentration' ? 'NO₂' : 'PM10'}`)
-            .style('margin-bottom', '10px')
-            .on('click', () => {
-                currentMetricIndex = (currentMetricIndex + 1) % metrics.length;
-                currentMetric = metrics[currentMetricIndex];
-                toggleButton.text(`Metric: ${currentMetric === 'pm25_concentration' ? 'PM2.5' : currentMetric === 'no2_concentration' ? 'NO₂' : 'PM10'}`);
+        const metricButtons = metricToggle.selectAll('button')
+            .data(metrics)
+            .enter().append('button')
+            .html(d => {
+                const labelMapping = {
+                    'pm25_concentration': 'PM2.5 (µg/m³)',
+                    'no2_concentration': 'NO₂ (ppm)',
+                    'pm10_concentration': 'PM10 (µg/m³)'
+                };
+                // Add a colored circle before the text using the pollutantScale
+                return `<span style="display:inline-block; width:12px; height:12px; background-color:${pollutantScale(d)}; border-radius:50%; margin-right:5px;"></span>${labelMapping[d]}`;
+            })
+            .attr('class', d => `metric-btn btn ${d === currentMetric ? 'btn-primary' : 'btn-outline-light'}`)
+            .style('padding', '8px 12px')
+            .style('border-radius', '4px')
+            .style('border', 'none')
+            .style('cursor', 'pointer')
+            .on('click', function(event, d) {
+                currentMetric = d;
+                // Update button classes for active/inactive state
+                metricButtons
+                    .classed('btn-primary', false)
+                    .classed('btn-outline-light', true);
+                d3.select(this)
+                    .classed('btn-primary', true)
+                    .classed('btn-outline-light', false);
                 renderTreemap(currentMetric, globalData, treemapGroup, svgWidth, treemapHeight, colorScale);
             });
 
         // Initially render treemap.
         renderTreemap(currentMetric, globalData, treemapGroup, svgWidth, treemapHeight, colorScale);
 
-        // "View Global Data" button in the line chart area.
-        lineChartGroup.append('text')
-            .attr('x', chartWidth - 200)
-            .attr('y', margin.top + 70)
-            .attr('fill', '#0af')
-            .style('cursor', 'pointer')
-            .style('font-size', '14px')
-            .style('text-decoration', 'underline')
-            .text('View Global Data')
-            .on('click', () => {
-                selectedCountryLabel.text('GLOBAL');
-                updateLineChart('GLOBAL');
-            });
-
         // By default, show global data on load.
-        selectedCountryLabel.text('GLOBAL');
         updateLineChart('GLOBAL');
     })
         .catch(err => {
