@@ -43,7 +43,30 @@ function abbreviateCountry(name) {
 
 // Computes global averages grouped by year.
 function buildGlobalAverages(data) {
-    const byYear = d3.group(data, d => d.year);
+    // Compute counts for each country and metric
+    const countryCounts = d3.rollup(
+        data,
+        v => ({
+            pm25: v.filter(d => !isNaN(d.pm25_concentration)).length,
+            no2: v.filter(d => !isNaN(d.no2_concentration)).length,
+            pm10: v.filter(d => !isNaN(d.pm10_concentration)).length,
+        }),
+        d => d.country_name
+    );
+
+    // Determine which countries have at least 2 data points for every metric
+    const validCountries = new Set();
+    for (const [country, counts] of countryCounts) {
+        if (counts.pm25 >= 2 && counts.no2 >= 2 && counts.pm10 >= 2) {
+            validCountries.add(country);
+        }
+    }
+
+    // Filter out rows from countries that don't meet the threshold
+    const filteredData = data.filter(d => validCountries.has(d.country_name));
+
+    // Now group the filtered data by year and compute the global averages
+    const byYear = d3.group(filteredData, d => d.year);
     const result = [];
     for (const [year, arr] of byYear) {
         const pm25Avg = d3.mean(arr, d => d.pm25_concentration) || 0;
