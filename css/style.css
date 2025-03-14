@@ -131,6 +131,28 @@ body {
     }
 }
 
+.no-border {
+    border: none !important;
+    background: none !important;
+    padding: 0 !important;
+}
+
+/* Side title container to center the rotated title */
+.side-title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Rotate the title vertically */
+.side-title {
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    white-space: nowrap;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+}
 /* Hide Scrollbar for Webkit Browsers */
 .scroll-container::-webkit-scrollbar {
     display: none;
