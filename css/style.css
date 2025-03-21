@@ -177,3 +177,8 @@ body {
         -ms-overflow-style: none; /* IE and Edge */
     }
 }
+
+#vis3 {
+    position: relative;
+    width: calc(100% - 40px); /* Reserve space for dots */
+}
