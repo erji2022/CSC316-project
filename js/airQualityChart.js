@@ -1,13 +1,13 @@
 // AirQualityTrends.js
-const svgHeight = 700;
 const legendHeight = 40;
-const treemapHeight = 350;
-const lineChartHeight = 250;
-const margin = { top: 10, right: 10, bottom: 30, left: 50 };
+const treemapHeight = 300;
+const lineChartHeight = 300;
+const svgHeight = legendHeight + treemapHeight + lineChartHeight + 10;
+const margin = { top: 10, right: 40, bottom: 30, left: 50 }; // Added right margin for dots
+const RIGHT_OFFSET = 40; // Space for scroll dots
 
 let globalData = [];
 let globalAverages = [];
-
 const metrics = ['pm25_concentration', 'no2_concentration', 'pm10_concentration'];
 let currentMetric = metrics[0];
 let currentCountry = 'GLOBAL';
@@ -22,7 +22,16 @@ const regionNames = {
     'Wpr': 'Western Pacific'
 };
 
-// Abbreviates a country name to up to 3 letters.
+
+const regionAcronyms = {
+    'Afr': 'AFR',
+    'Eur': 'EUR',
+    'Amr': 'AMR',
+    'Emr': 'EMR',
+    'Sear': 'SEA',
+    'NonMS': 'NMS',
+    'Wpr': 'WPR'
+};
 function abbreviateCountry(name) {
     return name.slice(0, 3).toUpperCase();
 }
@@ -67,25 +76,51 @@ function buildGlobalAverages(data) {
 
 // Renders the region legend.
 function renderRegionLegend(legendGroup, regions, colorScale) {
+    const containerWidth = legendGroup.node().parentNode.getBoundingClientRect().width;
+    const useAcronyms = containerWidth < 600; // Switch to acronyms below 600px
+
     let legendX = 0;
-    const legendSpacing = 140;
+    let legendY = 0;
+    const itemSpacing = useAcronyms ? 70 : 140;
+    const maxRowWidth = containerWidth - 20;
+    const rowHeight = 20;
+
+    legendGroup.selectAll('*').remove();
+
     regions.forEach(region => {
+        const label = useAcronyms ?
+            regionAcronyms[region] || region :
+            regionNames[region] || region;
+
+        // Check if we need new row
+        if (legendX + itemSpacing > maxRowWidth) {
+            legendX = 0;
+            legendY += rowHeight;
+        }
+
         const g = legendGroup.append('g')
-            .attr('transform', `translate(${legendX}, 0)`);
-        const regionLabel = regionNames[region] || region;
+            .attr('transform', `translate(${legendX}, ${legendY})`);
+
         g.append('rect')
             .attr('width', 15)
             .attr('height', 15)
             .attr('fill', colorScale(region))
             .attr('stroke', 'white');
+
         g.append('text')
-            .text(regionLabel)
+            .text(label)
             .attr('x', 18)
             .attr('y', 12)
             .attr('fill', 'white')
             .style('font-size', '12px');
-        legendX += legendSpacing;
+
+        legendX += itemSpacing;
     });
+
+    // Adjust treemap position based on legend height
+    const legendHeight = legendY + rowHeight;
+    d3.select('.treemap-group')
+        .attr('transform', `translate(0, ${legendHeight + 10})`);
 }
 
 // Renders the treemap visualization based on the selected metric.
@@ -174,6 +209,16 @@ function renderTreemap(metric, data, treemapGroup, svgWidth, treemapHeight, colo
 
 // Updates the line chart based on the selected country.
 function updateLineChart(countryName) {
+    const containerDiv = d3.select('#vis3');
+    const containerWidth = containerDiv.node().getBoundingClientRect().width - RIGHT_OFFSET;
+    const availableWidth = containerWidth - margin.left - margin.right;
+    window.chartWidth = availableWidth;
+
+    d3.select('#vis3 svg').attr('width', containerWidth + RIGHT_OFFSET);
+    window.chartTitle.attr('x', availableWidth / 2);
+    window.lineLegendGroup.attr('transform', `translate(${availableWidth * 0.85}, ${margin.top})`);
+    window.globalButton.style("display", countryName === 'GLOBAL' ? "none" : "block");
+
     let tooltip = d3.select("body").select(".tooltip");
     if (tooltip.empty()) {
         tooltip = d3.select("body")
@@ -190,14 +235,13 @@ function updateLineChart(countryName) {
 
     let cData = countryName === 'GLOBAL' ? globalAverages : globalData.filter(d => d.country_name === countryName);
     if (cData.length === 0) {
-        chartTitle.text(`No data available for ${countryName}`);
-        linesGroup.selectAll('path').remove();
-        xAxisGroup.selectAll('*').remove();
-        yAxisGroup.selectAll('*').remove();
-        linesGroup.selectAll('.data-point').remove();
+        window.chartTitle.text(`No data available for ${countryName}`);
+        window.linesGroup.selectAll('path').remove();
+        window.xAxisGroup.selectAll('*').remove();
+        window.yAxisGroup.selectAll('*').remove();
+        window.linesGroup.selectAll('.data-point').remove();
         return;
     }
-
     if (countryName !== 'GLOBAL') {
         cData = Array.from(d3.group(cData, d => d.year), ([year, values]) => ({
             year: +year,
@@ -207,8 +251,9 @@ function updateLineChart(countryName) {
         }));
     }
 
-    chartTitle.text(`${countryName}`);
+    window.chartTitle.text(`${countryName}`);
     cData.sort((a, b) => d3.ascending(a.year, b.year));
+
     const xDomain = d3.extent(cData, d => d.year);
     let maxVal = 0;
     cData.forEach(d => {
@@ -216,24 +261,25 @@ function updateLineChart(countryName) {
     });
     const xScale = d3.scaleLinear()
         .domain(xDomain)
-        .range([0, chartWidth]);
+        .range([0, availableWidth]);
     const yScale = d3.scaleLinear()
         .domain([0, maxVal]).nice()
-        .range([chartHeight - margin.bottom, margin.top]);
+        .range([window.chartHeight - margin.bottom, margin.top]);
+
     const xAxis = d3.axisBottom(xScale)
         .ticks(5)
         .tickFormat(d3.format('d'));
     const yAxis = d3.axisLeft(yScale).ticks(5);
-    xAxisGroup
-        .attr('transform', `translate(0, ${chartHeight - margin.bottom})`)
+
+    window.xAxisGroup
+        .attr('transform', `translate(0, ${window.chartHeight - margin.bottom})`)
         .call(xAxis);
-    xAxisGroup.selectAll('text').attr('fill', 'white');
-    xAxisGroup.selectAll('line, path').attr('stroke', 'white');
-    yAxisGroup
-        .attr('transform', `translate(0, 0)`)
-        .call(yAxis);
-    yAxisGroup.selectAll('text').attr('fill', 'white');
-    yAxisGroup.selectAll('line, path').attr('stroke', 'white');
+    window.xAxisGroup.selectAll('text').attr('fill', 'white');
+    window.xAxisGroup.selectAll('line, path').attr('stroke', 'white');
+
+    window.yAxisGroup.call(yAxis);
+    window.yAxisGroup.selectAll('text').attr('fill', 'white');
+    window.yAxisGroup.selectAll('line, path').attr('stroke', 'white');
 
     const lineGen = d3.line()
         .defined(d => !isNaN(d.value))
@@ -246,26 +292,30 @@ function updateLineChart(countryName) {
         { pollutant: 'pm10_concentration', label: 'PM10', values: cData.map(d => ({ year: d.year, value: d.pm10_concentration })).filter(d => !isNaN(d.value)) }
     ];
 
-    const lines = linesGroup.selectAll('.pollutant-line')
+    const lines = window.linesGroup.selectAll('.pollutant-line')
         .data(lineData, d => d.pollutant);
     lines.exit().remove();
+
     const enterLines = lines.enter().append('path')
         .attr('class', 'pollutant-line')
         .attr('fill', 'none')
         .attr('stroke-width', 2);
+
     enterLines.merge(lines)
         .transition()
         .duration(500)
         .attr('stroke', d => pollutantScale(d.pollutant))
+        .attr('stroke-opacity', d => d.pollutant === currentMetric ? 1 : 0.3)
         .attr('d', d => lineGen(d.values));
 
     const flatData = lineData.flatMap(d =>
         d.values.map(v => Object.assign({}, v, { pollutant: d.pollutant }))
     );
 
-    const points = linesGroup.selectAll('.data-point')
+    const points = window.linesGroup.selectAll('.data-point')
         .data(flatData, d => d.year + "-" + d.pollutant);
     points.exit().remove();
+
     points.enter()
         .append("circle")
         .attr("class", "data-point")
@@ -273,6 +323,7 @@ function updateLineChart(countryName) {
         .attr("cx", d => xScale(d.year))
         .attr("cy", d => yScale(d.value))
         .attr("fill", d => pollutantScale(d.pollutant))
+        .attr("fill-opacity", d => d.pollutant === currentMetric ? 1 : 0.3)
         .on("mouseover", (event, d) => {
             tooltip.transition().duration(200).style("opacity", 0.9);
             tooltip.html(`<strong>Country:</strong> ${countryName}<br><strong>Year:</strong> ${d.year}<br><strong>${d.pollutant}:</strong> ${d.value}`)
@@ -291,38 +342,48 @@ function updateLineChart(countryName) {
         .duration(500)
         .attr("cx", d => xScale(d.year))
         .attr("cy", d => yScale(d.value))
-        .attr("fill", d => pollutantScale(d.pollutant));
-
+        .attr("fill", d => pollutantScale(d.pollutant))
+        .attr("fill-opacity", d => d.pollutant === currentMetric ? 1 : 0.3);
 }
 
 // Main visualization initialization.
 function initializeVisualization() {
     const containerDiv = d3.select('#vis3').html('');
-    const containerWidth = containerDiv.node().getBoundingClientRect().width;
+    const fullWidth = containerDiv.node().getBoundingClientRect().width;
+    const containerWidth = fullWidth - RIGHT_OFFSET; // Reserve space for dots
+    const availableWidth = containerWidth - margin.left - margin.right;
 
-    // Create control container
+    // Create controls first
     const controls = containerDiv.append('div')
         .style('display', 'flex')
         .style('gap', '5px')
         .style('margin-bottom', '5px');
 
-    // Global data button
-    controls.append('button')
-        .attr('class', 'global-btn btn btn-primary')
+    // Create metric dropdown at the top
+    const metricSelectContainer = controls.append('div')
+        .style('display', 'flex')
+        .style('align-items', 'center')
+        .style('gap', '5px');
+
+    metricSelectContainer.append('label')
+        .attr('for', 'metricSelect')
+        .style('color', 'white')
+        .style('font-size', '14px')
+        .text('Sort by metric:');
+
+    const metricSelect = metricSelectContainer.append('select')
+        .attr('id', 'metricSelect')
         .style('padding', '8px 12px')
         .style('border-radius', '4px')
         .style('border', 'none')
-        .style('cursor', 'pointer')
-        .text('View Global Data')
-        .on('click', () => {
-            updateLineChart('GLOBAL');
-        });
+        .style('cursor', 'pointer');
 
-    // Create SVG element
+    // Create SVG with reduced width
     const svg = containerDiv.append('svg')
-        .attr('width', containerWidth)
+        .attr('width', containerWidth) // Not full width
         .attr('height', svgHeight)
-        .style('background', '#222');
+        .style('background', '#222')
+        .style('margin-bottom', '50px');
 
     const legendGroup = svg.append('g')
         .attr('transform', `translate(10, 10)`);
@@ -333,22 +394,40 @@ function initializeVisualization() {
     const lineChartGroup = svg.append('g')
         .attr('transform', `translate(${margin.left}, ${legendHeight + treemapHeight + 10})`);
 
-    window.chartWidth = containerWidth - margin.left - margin.right;
+    window.chartWidth = availableWidth;
     window.chartHeight = lineChartHeight;
 
-    // Create groups for line chart elements.
+    // Chart header group
+    window.chartHeaderGroup = lineChartGroup.append('g')
+        .attr('class', 'chart-header')
+        .attr('transform', `translate(0,0)`);
+
     window.xAxisGroup = lineChartGroup.append('g')
         .attr('class', 'x-axis')
-        .attr('transform', `translate(0, ${chartHeight - margin.bottom})`);
+        .attr('transform', `translate(0, ${window.chartHeight - margin.bottom})`);
+
     window.yAxisGroup = lineChartGroup.append('g')
         .attr('class', 'y-axis');
-    window.chartTitle = lineChartGroup.append('text')
-        .attr('x', chartWidth / 2)
+
+    window.globalButton = window.chartHeaderGroup.append('text')
+        .attr('x', availableWidth / 2)
         .attr('y', margin.top)
+        .attr('fill', '#fff')
+        .attr('text-anchor', 'middle') // Center the button
+        .style('font-size', '12px')
+        .style('cursor', 'pointer')
+        .text('View Global Data')
+        .on('click', () => updateLineChart('GLOBAL'));
+
+    // Chart title below button
+    window.chartTitle = window.chartHeaderGroup.append('text')
+        .attr('x', availableWidth / 2)
+        .attr('y', margin.top + 20) // Position below button
         .attr('fill', 'white')
         .attr('text-anchor', 'middle')
         .style('font-size', '14px')
         .text('Loading Global Pollutant Trends...');
+
     window.linesGroup = lineChartGroup.append('g')
         .attr('class', 'lines-group');
 
@@ -359,7 +438,7 @@ function initializeVisualization() {
 
     window.lineLegendGroup = lineChartGroup.append('g')
         .attr('class', 'line-legend')
-        .attr('transform', `translate(${chartWidth - 150}, ${margin.top})`);
+        .attr('transform', `translate(${availableWidth * 0.85}, ${margin.top})`);
 
     window.lineLegendGroup.selectAll('*').remove();
     metrics.forEach((d, i) => {
@@ -391,6 +470,8 @@ function initializeVisualization() {
             d.year = +d.year;
         });
 
+        // AirQualityTrends.js (continued from previous code)
+
         rawData = rawData.filter(d => d.year && (
             !isNaN(d.pm25_concentration) ||
             !isNaN(d.pm10_concentration) ||
@@ -412,27 +493,6 @@ function initializeVisualization() {
             .range(d3.schemeCategory10);
 
         renderRegionLegend(legendGroup, regions, colorScale);
-        // Metric dropdown instead of toggle buttons
-        const metricSelectContainer = controls.append('div')
-            .attr('class', 'metric-select-container')
-            .style('display', 'flex')
-            .style('align-items', 'center')
-            .style('gap', '5px');
-
-        // Add a label for the dropdown.
-        metricSelectContainer.append('label')
-            .attr('for', 'metricSelect')
-            .style('color', 'white')
-            .style('font-size', '14px')
-            .text('Sort by metric:');
-
-        // Create the dropdown.
-        const metricSelect = metricSelectContainer.append('select')
-            .attr('id', 'metricSelect')
-            .style('padding', '8px 12px')
-            .style('border-radius', '4px')
-            .style('border', 'none')
-            .style('cursor', 'pointer');
 
         metricSelect.selectAll('option')
             .data(metrics)
@@ -452,17 +512,26 @@ function initializeVisualization() {
         // When the dropdown selection changes, update the current metric and re-render.
         metricSelect.on('change', function() {
             currentMetric = this.value;
-            const newWidth = containerDiv.node().getBoundingClientRect().width;
+            const newWidth = containerDiv.node().getBoundingClientRect().width - RIGHT_OFFSET;
+            window.chartWidth = newWidth - margin.left - margin.right;
             renderTreemap(currentMetric, globalData, treemapGroup, newWidth, treemapHeight, colorScale);
+            updateLineChart(currentCountry);
         });
 
         renderTreemap(currentMetric, globalData, treemapGroup, containerWidth, treemapHeight, colorScale);
         updateLineChart('GLOBAL');
-
         window.addEventListener('resize', () => {
-            const newWidth = containerDiv.node().getBoundingClientRect().width;
-            svg.attr('width', newWidth);
-            window.chartWidth = newWidth - margin.left - margin.right;
+            const containerDiv = d3.select('#vis3');
+            const newWidth = containerDiv.node().getBoundingClientRect().width - RIGHT_OFFSET;
+
+            // Re-render components
+            const regionsSet = new Set(globalData.map(d => d.region));
+            const regions = Array.from(regionsSet);
+            const colorScale = d3.scaleOrdinal()
+                .domain(regions)
+                .range(d3.schemeCategory10);
+
+            renderRegionLegend(legendGroup, regions, colorScale);
             renderTreemap(currentMetric, globalData, treemapGroup, newWidth, treemapHeight, colorScale);
             updateLineChart(currentCountry);
         });
