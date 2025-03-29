@@ -11,6 +11,10 @@ export function initPage4() {
 
     initializeVisualizations();
 
+    document.getElementById("yearRange").addEventListener("change", () => {
+        renderPHHeatmap();
+    });
+    
     pageElement.addEventListener('click', () => {
         console.log('Clicked Water Quality Page');
     });
