@@ -6,7 +6,7 @@ export function renderPHHeatmap() {
 
     const svgContainer = d3.select("#vis6");
     svgContainer.select("svg").remove();
-    svgContainer.select("div.tooltip").remove();
+    d3.select("body").select("div.tooltip").remove(); // remove any existing tooltip
 
     const svg = svgContainer
         .append("svg")
@@ -15,7 +15,7 @@ export function renderPHHeatmap() {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const tooltip = svgContainer
+    const tooltip = d3.select("body")
         .append("div")
         .attr("class", "tooltip")
         .style("position", "absolute")
@@ -25,7 +25,8 @@ export function renderPHHeatmap() {
         .style("border-radius", "4px")
         .style("font-size", "13px")
         .style("pointer-events", "none")
-        .style("opacity", 0);
+        .style("opacity", 0)
+        .style("z-index", "1000");
 
     d3.csv("data/pH.csv").then(data => {
         data.forEach(d => {
@@ -112,17 +113,21 @@ export function renderPHHeatmap() {
             const cells = svg.selectAll("rect.heat-cell")
                 .data(averagedData, d => d.Year + "-" + d.StationGroup);
 
-            cells.enter()
+            const mergedCells = cells.enter()
                 .append("rect")
                 .attr("class", "heat-cell")
+                .merge(cells);
+
+            mergedCells
                 .attr("x", d => xScale(d.Year))
                 .attr("y", d => yScale(d.StationGroup))
                 .attr("width", xScale.bandwidth())
                 .attr("height", yScale.bandwidth())
-                .attr("fill", "#ccc")
-                .attr("opacity", 0)
+                .attr("fill", d => d["pH Value"] !== null ? colorScale(d["pH Value"]) : "#ccc")
+                .attr("opacity", 1)
                 .on("mouseover", function (event, d) {
                     if (d["pH Value"] === null) return;
+
                     tooltip.transition().duration(150).style("opacity", 1);
                     tooltip.html(`
                         <strong>Station Group:</strong> ${d.StationGroup}<br>
@@ -130,20 +135,12 @@ export function renderPHHeatmap() {
                         <strong>Avg pH:</strong> ${d["pH Value"].toFixed(2)}<br>
                         <strong>Category:</strong> ${getCategory(d["pH Value"])}
                     `)
-                        .style("left", event.pageX + 15 + "px")
-                        .style("top", event.pageY - 28 + "px");
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 40) + "px");
                 })
-                .on("mouseout", () => tooltip.transition().duration(300).style("opacity", 0))
-                .transition()
-                .duration(600)
-                .attr("fill", d => d["pH Value"] !== null ? colorScale(d["pH Value"]) : "#ccc")
-                .attr("opacity", 1);
-
-            cells.transition()
-                .duration(600)
-                .attr("x", d => xScale(d.Year))
-                .attr("y", d => yScale(d.StationGroup))
-                .attr("fill", d => d["pH Value"] !== null ? colorScale(d["pH Value"]) : "#ccc");
+                .on("mouseout", () => {
+                    tooltip.transition().duration(300).style("opacity", 0);
+                });
 
             cells.exit().transition().duration(400).attr("opacity", 0).remove();
 
@@ -173,7 +170,6 @@ export function renderPHHeatmap() {
                 .style("font-weight", "bold")
                 .text("Average pH Levels Over Selected Years at 10 Station Groups");
 
-            // pH Legend (Back!)
             const legendHeight = 180;
             const legendWidth = 15;
             const legendScale = d3.scaleLinear().domain([0, 14]).range([legendHeight, 0]);
@@ -208,7 +204,6 @@ export function renderPHHeatmap() {
                 .call(legendAxis);
         }
 
-      
         const defaultValue = yearRangeSelect.value || "all";
         drawHeatmap(getFilteredYears(defaultValue));
 
@@ -217,3 +212,4 @@ export function renderPHHeatmap() {
         });
     });
 }
+
