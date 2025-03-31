@@ -35,25 +35,32 @@
     <!-- Page 1: Global Warming -->
     <div class="page" id="page1">
         <div class="row">
-            <h1 class="page-title">Global Warming: Rising Temperatures & Melting Ice</h1>
+            <h1 class="page-title">Global Warming: Temperature, CO₂ & Sea Level Rise</h1>
         </div>
-        <div class="row story-container">
+        <div class="row story-container" style="max-width: 1000px;">
             <div class="col-md-12">
                 <p>
-                    Our planet’s temperature has been on a steady rise due to increased greenhouse gas emissions. This
-                    page explores global temperature anomalies and the resulting changes in our ice caps and sea levels.
+                    Global warming is one of the most pressing challenges of our time, driven largely by human-induced
+                    changes to the Earth’s atmosphere. This visualization presents long-term trends in global
+                    temperature, atmospheric CO₂ levels, and sea
+                    level rise, offering a clear view of how these indicators have evolved together over recent decades.
                 </p>
             </div>
         </div>
         <div class="row visualization-container g-4">
-            <div class="col-md-6 visualization-col">
-                <h5 class="vis-title">Temperature & CO₂ Trends</h5>
-                <div id="vis1" class="vis-placeholder">
-                </div>
-            </div>
-            <div class="col-md-6 visualization-col">
+<!--            <div class="col-md-6 visualization-col">-->
+<!--                <h5 class="vis-title">Temperature & CO₂ Trends</h5>-->
+<!--                <div id="vis1" class="vis-placeholder">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="col-md-6 visualization-col">-->
+<!--                <h5 class="vis-title">Temperature & Sea Level Trends</h5>-->
+<!--                <div id="vis2" class="vis-placeholder">-->
+<!--                </div>-->
+<!--            </div>            -->
+            <div class="col-md-12 visualization-col" style="margin-top: 12px;">
                 <h5 class="vis-title">Temperature & Sea Level Trends</h5>
-                <div id="vis2" class="vis-placeholder">
+                <div id="visCombined" class="vis-placeholder" style="width: 1000px; height: 500px;">
                 </div>
             </div>
         </div>
@@ -66,8 +73,10 @@
             <div class="col-md-3">
                 <h1 class="page-title">Air Quality Degradation: Polluted Skies</h1>
                 <p>
-                    Air pollution poses a severe risk to public health. PM2.5, in particular, can cause serious respiratory diseases and increase the mortality rate.
-                    Despite some decreases in overall pollution levels, PM2.5 exposure remains many times higher than what the WHO recommends.
+                    Air pollution poses a severe risk to public health. PM2.5, in particular, can cause serious
+                    respiratory diseases and increase the mortality rate.
+                    Despite some decreases in overall pollution levels, PM2.5 exposure remains many times higher than
+                    what the WHO recommends.
                     Explore the Tree Map to see how each country is contributing to air pollution.
                 </p>
             </div>
@@ -130,9 +139,9 @@
                         <option value="2010-2025" selected>2010–2025</option>
                     </select>
                 </div>
-                
+
                 <div id="vis6" class="vis-placeholder">
-                 
+
                 </div>
             </div>
         </div>
