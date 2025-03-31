@@ -21,16 +21,28 @@ export function renderCombinedChart() {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Create tooltip.
-    const tooltip = d3.select("body")
-        .append("div")
-        .attr("class", "tooltip")
-        .style("position", "absolute")
-        .style("background", "#fff")
-        .style("border", "1px solid #ccc")
-        .style("padding", "5px")
-        .style("pointer-events", "none")
-        .style("opacity", 0);
+    // Create an SVG tooltip group.
+    const svgTooltip = svg.append("g")
+        .attr("class", "svg-tooltip")
+        .style("display", "none");
+
+    // Append a background rectangle for the tooltip.
+    svgTooltip.append("rect")
+        .attr("class", "tooltip-bg")
+        .attr("width", 150)
+        .attr("height", 70)
+        .attr("fill", "#fff")
+        .attr("stroke", "#ccc")
+        .attr("rx", 4)
+        .attr("ry", 4);
+
+    // Append a text element; we'll use tspans for multiple lines.
+    const tooltipText = svgTooltip.append("text")
+        .attr("class", "tooltip-text")
+        .attr("x", 10)
+        .attr("y", 20)
+        .attr("font-size", "12px")
+        .attr("fill", "#000");
 
     // Vertical guideline for hover.
     const verticalLine = svg.append("line")
@@ -40,7 +52,6 @@ export function renderCombinedChart() {
     // ---------------------------
     // Parsing functions
     // ---------------------------
-    // Parse temperature file (land-ocean-temperature.txt).
     const parseTemp = (raw) => {
         const lines = raw.split("\n")
             .filter(line => line.trim() !== "" && /^\d/.test(line.trim()));
@@ -50,16 +61,13 @@ export function renderCombinedChart() {
         });
     };
 
-    // Parse the CO₂ data from the mm-mlo file.
     const parseCO2_mlo = (raw) => {
         const lines = raw.split("\n")
             .filter(line => line.trim() !== "" && !line.startsWith("#"));
-        // Each line: [year, ... , deseason, ...] – we assume the 1st token is year and 5th token is deseasonalized value.
         const monthlyData = lines.map(line => {
             const cols = line.trim().split(/\s+/);
             return {year: +cols[0], co2: +cols[4]};
         });
-        // Aggregate monthly values to yearly average.
         const co2ByYear = d3.rollups(monthlyData,
             v => d3.mean(v, d => d.co2),
             d => d.year
@@ -67,9 +75,6 @@ export function renderCombinedChart() {
         return co2ByYear;
     };
 
-    // Parse the CO₂ data from the co2-1850.txt file.
-    // This file is arranged in a multi‐column (free‐format) style.
-    // We “scan” for tokens that are a valid year (1880–1954) and then take the next token as the mixing ratio.
     const parseCO2_1850 = (raw) => {
         const tokens = raw.split(/\s+/);
         const data = [];
@@ -82,7 +87,6 @@ export function renderCombinedChart() {
                 }
             }
         }
-        // In case of duplicate years, average them.
         const co2ByYear = d3.rollups(data,
             v => d3.mean(v, d => d.co2),
             d => d.year
@@ -90,7 +94,6 @@ export function renderCombinedChart() {
         return co2ByYear;
     };
 
-    // Load and combine sea level data (from chart two).
     const loadAndCombineSeaLevelData = () => {
         return Promise.all([
             d3.csv("data/global-average-absolute-sea-level-change.csv"),
@@ -109,7 +112,6 @@ export function renderCombinedChart() {
                 const gmsl = +cols[11];
                 return {year, gmsl};
             });
-            // Determine offset using overlapping years.
             const differences = [];
             newData.forEach(nd => {
                 const oldRec = oldData.find(od => od.year === nd.year);
@@ -121,7 +123,6 @@ export function renderCombinedChart() {
             newData.forEach(nd => {
                 nd.gmsl = nd.gmsl + offset;
             });
-            // Merge the two datasets.
             const combinedMap = {};
             oldData.forEach(rec => {
                 combinedMap[rec.year] = rec;
@@ -146,22 +147,16 @@ export function renderCombinedChart() {
         loadAndCombineSeaLevelData()
     ])
         .then(([tempRaw, co2MloRaw, co2_1850Raw, seaData]) => {
-            // Parse temperature data.
             const tempData = parseTemp(tempRaw);
-
-            // Parse CO₂ from the two files.
             const co2_mloData = parseCO2_mlo(co2MloRaw);
             const co2_1850Data = parseCO2_1850(co2_1850Raw);
 
-            // Merge CO₂ data and restrict to years ≥ 1880.
             let co2Data = co2_1850Data.concat(co2_mloData)
                 .filter(d => d.year >= 1880);
-            // In case of duplicate years, average them.
             co2Data = d3.rollups(co2Data, v => d3.mean(v, d => d.co2), d => d.year)
                 .map(([year, avgCO2]) => ({year, co2: avgCO2}));
 
-            // Combine all three datasets by year.
-            // We include only years that have temperature, CO₂, and sea level data.
+            // Combine datasets (only years with all data are included).
             const combinedData = [];
             tempData.forEach(t => {
                 const co2Rec = co2Data.find(c => c.year === t.year);
@@ -185,23 +180,76 @@ export function renderCombinedChart() {
                 .range([0, width])
                 .padding(0.1);
 
-            // Temperature y-scale (left axis).
             const yTemp = d3.scaleLinear()
                 .domain(d3.extent(combinedData, d => d.temp)).nice()
                 .range([height, 0]);
 
-            // Right-axis scale will show CO₂ (in ppm).
             const yCO2 = d3.scaleLinear()
                 .domain(d3.extent(combinedData, d => d.co2)).nice()
                 .range([height, 0]);
 
-            // For sea level we create a transform so that its values map onto the CO₂ scale.
             const seaExtent = d3.extent(combinedData, d => d.gmsl);
             const ySeaTransform = d3.scaleLinear()
                 .domain(seaExtent)
-                // Map sea level so that its max (largest value) aligns with the top of the CO₂ scale
-                // and its min aligns with the bottom.
                 .range([yCO2(yCO2.domain()[0]), yCO2(yCO2.domain()[1])]);
+
+            // ---------------------------
+            // Function to update the SVG tooltip.
+            // ---------------------------
+            function updateSvgTooltip(d, event) {
+                // Update tooltip text using tspans for multiple lines.
+                tooltipText.html(""); // clear existing text
+                tooltipText.append("tspan")
+                    .text(`Year: ${d.year}`)
+                    .attr("x", 10)
+                    .attr("dy", "0em");
+                tooltipText.append("tspan")
+                    .text(`Temp: ${d.temp}°C`)
+                    .attr("x", 10)
+                    .attr("dy", "1.2em");
+                tooltipText.append("tspan")
+                    .text(`CO₂: ${d.co2.toFixed(2)} ppm`)
+                    .attr("x", 10)
+                    .attr("dy", "1.2em");
+                tooltipText.append("tspan")
+                    .text(`Sea Level: ${d.gmsl.toFixed(2)} mm`)
+                    .attr("x", 10)
+                    .attr("dy", "1.2em");
+
+                // Position the tooltip near the mouse pointer.
+                const [mouseX, mouseY] = d3.pointer(event);
+                svgTooltip.attr("transform", `translate(${mouseX + 10},${mouseY - 30})`);
+
+                // Display the tooltip.
+                svgTooltip.style("display", null);
+
+                // Update vertical guideline.
+                verticalLine
+                    .attr("x1", x(d.year) + x.bandwidth() / 2)
+                    .attr("x2", x(d.year) + x.bandwidth() / 2)
+                    .attr("y1", -15)
+                    .attr("y2", height)
+                    .style("stroke", "black")
+                    .style("stroke-dasharray", "3,3")
+                    .style("opacity", 1);
+
+                // Reset styling for all elements.
+                svg.selectAll(".bar-temp")
+                    .attr("fill", dBar => dBar.temp < 0 ? "steelblue" : "tomato");
+                svg.selectAll(".circle-co2").attr("r", 1);
+                svg.selectAll(".circle-sea").attr("r", 1);
+
+                // Highlight current elements.
+                svg.selectAll(".bar-temp")
+                    .filter(dBar => dBar.year === d.year)
+                    .attr("fill", d.temp < 0 ? d3.rgb("steelblue").darker(0.7) : d3.rgb("tomato").darker(0.7));
+                svg.selectAll(".circle-co2")
+                    .filter(dBar => dBar.year === d.year)
+                    .attr("r", 3);
+                svg.selectAll(".circle-sea")
+                    .filter(dBar => dBar.year === d.year)
+                    .attr("r", 3);
+            }
 
             // ---------------------------
             // Draw Temperature Bars.
@@ -218,10 +266,10 @@ export function renderCombinedChart() {
                 .attr("height", d => Math.abs(yTemp(d.temp) - yTemp(0)))
                 .attr("fill", d => d.temp < 0 ? "steelblue" : "tomato")
                 .on("mouseover", function (event, d) {
-                    updateHover(d, event);
+                    updateSvgTooltip(d, event);
                 })
                 .on("mouseout", function (event, d) {
-                    tooltip.transition().duration(500).style("opacity", 0);
+                    svgTooltip.style("display", "none");
                     verticalLine.style("opacity", 0);
                     d3.select(this).attr("fill", d.temp < 0 ? "steelblue" : "tomato");
                     svg.selectAll(".circle-co2")
@@ -255,10 +303,10 @@ export function renderCombinedChart() {
                 .attr("r", 1)
                 .attr("fill", "green")
                 .on("mouseover", function (event, d) {
-                    updateHover(d, event);
+                    updateSvgTooltip(d, event);
                 })
                 .on("mouseout", function (event, d) {
-                    tooltip.transition().duration(500).style("opacity", 0);
+                    svgTooltip.style("display", "none");
                     verticalLine.style("opacity", 0);
                     d3.select(this).attr("r", 1);
                     svg.selectAll(".bar-temp")
@@ -289,59 +337,16 @@ export function renderCombinedChart() {
                 .attr("r", 1)
                 .attr("fill", "blue")
                 .on("mouseover", function (event, d) {
-                    updateHover(d, event);
+                    updateSvgTooltip(d, event);
                 })
                 .on("mouseout", function (event, d) {
-                    tooltip.transition().duration(500).style("opacity", 0);
+                    svgTooltip.style("display", "none");
                     verticalLine.style("opacity", 0);
                     d3.select(this).attr("r", 1);
                     svg.selectAll(".bar-temp")
                         .filter(d2 => d2.year === d.year)
                         .attr("fill", d.temp < 0 ? "steelblue" : "tomato");
                 });
-
-            // ---------------------------
-            // Hover update function.
-            // ---------------------------
-            function updateHover(d, event) {
-                tooltip.transition().duration(200).style("opacity", 0.9);
-                tooltip.html(
-                    "Year: " + d.year +
-                    "<br/>Temp: " + d.temp + "°C" +
-                    "<br/>CO₂: " + d.co2.toFixed(2) + " ppm" +
-                    "<br/>Sea Level: " + d.gmsl.toFixed(2) + " mm"
-                )
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 28) + "px");
-
-                verticalLine
-                    .attr("x1", x(d.year) + x.bandwidth() / 2)
-                    .attr("x2", x(d.year) + x.bandwidth() / 2)
-                    .attr("y1", -15)
-                    .attr("y2", height)
-                    .style("stroke", "black")
-                    .style("stroke-dasharray", "3,3")
-                    .style("opacity", 1);
-
-                // Reset all elements.
-                svg.selectAll(".bar-temp")
-                    .attr("fill", dBar => dBar.temp < 0 ? "steelblue" : "tomato");
-                svg.selectAll(".circle-co2")
-                    .attr("r", 1);
-                svg.selectAll(".circle-sea")
-                    .attr("r", 1);
-
-                // Highlight the current elements.
-                svg.selectAll(".bar-temp")
-                    .filter(dBar => dBar.year === d.year)
-                    .attr("fill", d.temp < 0 ? d3.rgb("steelblue").darker(0.7) : d3.rgb("tomato").darker(0.7));
-                svg.selectAll(".circle-co2")
-                    .filter(dBar => dBar.year === d.year)
-                    .attr("r", 3);
-                svg.selectAll(".circle-sea")
-                    .filter(dBar => dBar.year === d.year)
-                    .attr("r", 3);
-            }
 
             // ---------------------------
             // Add an overlay to capture hover events.
@@ -364,10 +369,10 @@ export function renderCombinedChart() {
                             nearest = d;
                         }
                     });
-                    if (nearest) updateHover(nearest, event);
+                    if (nearest) updateSvgTooltip(nearest, event);
                 })
                 .on("mouseout", function () {
-                    tooltip.transition().duration(500).style("opacity", 0);
+                    svgTooltip.style("display", "none");
                     verticalLine.style("opacity", 0);
                     svg.selectAll(".bar-temp")
                         .attr("fill", d => d.temp < 0 ? "steelblue" : "tomato");
@@ -378,18 +383,15 @@ export function renderCombinedChart() {
             // ---------------------------
             // Add Axes.
             // ---------------------------
-            // X-Axis.
             const xAxis = d3.axisBottom(x)
                 .tickValues(x.domain().filter((d, i) => !(i % 5)));
             svg.append("g")
                 .attr("transform", `translate(0,${height})`)
                 .call(xAxis);
 
-            // Left Y-Axis for Temperature.
             svg.append("g")
                 .call(d3.axisLeft(yTemp));
 
-            // Right Y-Axis for CO₂.
             svg.append("g")
                 .attr("transform", `translate(${width},0)`)
                 .call(d3.axisRight(yCO2))
@@ -401,7 +403,6 @@ export function renderCombinedChart() {
                 .style("text-anchor", "middle")
                 .text("CO₂ (ppm)");
 
-            // Horizontal baseline for Temperature.
             svg.append("line")
                 .attr("x1", 0)
                 .attr("x2", width)
@@ -410,13 +411,11 @@ export function renderCombinedChart() {
                 .attr("stroke", "black")
                 .attr("stroke-dasharray", "4 2");
 
-            // X-Axis label.
             svg.append("text")
                 .attr("transform", `translate(${width / 2},${height + margin.bottom - 5})`)
                 .style("text-anchor", "middle")
                 .text("Year");
 
-            // Left Y-Axis label.
             svg.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", -margin.left + 18)
@@ -427,12 +426,10 @@ export function renderCombinedChart() {
             // ---------------------------
             // Add Legend.
             // ---------------------------
-            // Place the legend in the upper-right corner (inside the SVG).
             const legend = svg.append("g")
                 .attr("class", "legend")
                 .attr("transform", `translate(${width - 150},20)`);
 
-            // Temperature (bars).
             legend.append("rect")
                 .attr("x", 0)
                 .attr("y", 0)
@@ -444,7 +441,6 @@ export function renderCombinedChart() {
                 .attr("y", 10)
                 .text("Temperature (°C)");
 
-            // CO₂ (line).
             legend.append("line")
                 .attr("x1", 0)
                 .attr("y1", 20)
@@ -457,7 +453,6 @@ export function renderCombinedChart() {
                 .attr("y", 24)
                 .text("CO₂ (ppm)");
 
-            // Sea Level (line; note the values are scaled for plotting).
             legend.append("line")
                 .attr("x1", 0)
                 .attr("y1", 40)
