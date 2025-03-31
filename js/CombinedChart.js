@@ -401,7 +401,6 @@ export function renderCombinedChart() {
                 .attr("y", 40)
                 .attr("fill", "black")
                 .style("text-anchor", "middle")
-                .text("CO₂ (ppm)");
 
             svg.append("line")
                 .attr("x1", 0)
@@ -432,44 +431,38 @@ export function renderCombinedChart() {
 
             legend.append("rect")
                 .attr("x", 0)
-                .attr("y", 0)
+                .attr("y", 337)
                 .attr("width", 10)
                 .attr("height", 10)
                 .attr("fill", "tomato");
             legend.append("text")
                 .attr("x", 15)
-                .attr("y", 10)
+                .attr("y", 347)
                 .text("Temperature (°C)");
 
             legend.append("line")
                 .attr("x1", 0)
-                .attr("y1", 20)
+                .attr("y1", 365)
                 .attr("x2", 10)
-                .attr("y2", 20)
+                .attr("y2", 365)
                 .attr("stroke", "green")
                 .attr("stroke-width", 2);
             legend.append("text")
                 .attr("x", 15)
-                .attr("y", 24)
+                .attr("y", 369)
                 .text("CO₂ (ppm)");
 
             legend.append("line")
                 .attr("x1", 0)
-                .attr("y1", 40)
+                .attr("y1", 385)
                 .attr("x2", 10)
-                .attr("y2", 40)
+                .attr("y2", 385)
                 .attr("stroke", "blue")
                 .attr("stroke-width", 2);
             legend.append("text")
                 .attr("x", 15)
-                .attr("y", 44)
+                .attr("y", 389)
                 .text("Sea Level (mm)*");
-
-            legend.append("text")
-                .attr("x", 0)
-                .attr("y", 60)
-                .attr("font-size", "10px")
-                .text("* Raw values shown in tooltip");
 
         })
         .catch(err => {
