@@ -10,7 +10,7 @@ export function renderCombinedChart() {
     const container = d3.select("#visCombined");
     const containerWidth = parseInt(container.style("width"));
     const containerHeight = parseInt(container.style("height"));
-    const margin = {top: 20, right: 80, bottom: 40, left: 50};
+    const margin = {top: 20, right: 85, bottom: 40, left: 50};
     const width = containerWidth - margin.left - margin.right;
     const height = containerHeight - margin.top - margin.bottom;
 
@@ -433,7 +433,7 @@ export function renderCombinedChart() {
 
             svg.append("text")
                 .attr("transform", "rotate(90)")
-                .attr("y", -width - margin.right + 20)
+                .attr("y", -width - margin.right + 23)
                 .attr("x", height / 2)
                 .style("text-anchor", "middle")
                 .text("CO₂ (ppm) / Sea Level (mm)");
