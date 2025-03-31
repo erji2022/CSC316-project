@@ -220,6 +220,7 @@ export function renderCombinedChart() {
                 const [mouseX, mouseY] = d3.pointer(event);
                 svgTooltip.attr("transform", `translate(${mouseX + 10},${mouseY - 30})`);
 
+                svgTooltip.raise();
                 // Display the tooltip.
                 svgTooltip.style("display", null);
 
