@@ -29,9 +29,9 @@ export function renderCombinedChart() {
     // Append a background rectangle for the tooltip.
     svgTooltip.append("rect")
         .attr("class", "tooltip-bg")
-        .attr("width", 150)
-        .attr("height", 70)
-        .attr("fill", "#fff")
+        .attr("width", 175)
+        .attr("height", 87)
+        .attr("fill", "transparent")
         .attr("stroke", "#ccc")
         .attr("rx", 4)
         .attr("ry", 4);
@@ -41,7 +41,6 @@ export function renderCombinedChart() {
         .attr("class", "tooltip-text")
         .attr("x", 10)
         .attr("y", 20)
-        .attr("font-size", "12px")
         .attr("fill", "#000");
 
     // Vertical guideline for hover.
