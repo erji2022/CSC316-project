@@ -10,7 +10,7 @@ export function renderCombinedChart() {
     const container = d3.select("#visCombined");
     const containerWidth = parseInt(container.style("width"));
     const containerHeight = parseInt(container.style("height"));
-    const margin = {top: 20, right: 60, bottom: 40, left: 50};
+    const margin = {top: 20, right: 80, bottom: 40, left: 50};
     const width = containerWidth - margin.left - margin.right;
     const height = containerHeight - margin.top - margin.bottom;
 
@@ -217,7 +217,13 @@ export function renderCombinedChart() {
 
                 // Position the tooltip near the mouse pointer.
                 const [mouseX, mouseY] = d3.pointer(event);
-                svgTooltip.attr("transform", `translate(${mouseX + 10},${mouseY - 30})`);
+                const tooltipWidth = 175; // tooltip width defined on the rect
+                let tooltipX = mouseX + 10; // default: position tooltip to the right of the mouse
+                // If tooltip would overflow to the right, position it to the left.
+                if (mouseX + 10 + tooltipWidth > width) {
+                    tooltipX = mouseX - 10 - tooltipWidth;
+                }
+                svgTooltip.attr("transform", `translate(${tooltipX},${mouseY - 30})`);
 
                 svgTooltip.raise();
                 // Display the tooltip.
@@ -392,15 +398,18 @@ export function renderCombinedChart() {
             svg.append("g")
                 .call(d3.axisLeft(yTemp));
 
+            const numTicks = 10;
+            const combinedAxis = d3.axisRight(yCO2)
+                .ticks(numTicks)
+                .tickFormat(d => {
+                    const pixelPos = yCO2(d);
+                    const seaLevelValue = ySeaTransform.invert(pixelPos);
+                    return `${d} / ${Math.round(seaLevelValue)}`;
+                });
+
             svg.append("g")
                 .attr("transform", `translate(${width},0)`)
-                .call(d3.axisRight(yCO2))
-                .append("text")
-                .attr("transform", "rotate(90)")
-                .attr("x", height / 2)
-                .attr("y", 40)
-                .attr("fill", "black")
-                .style("text-anchor", "middle")
+                .call(combinedAxis)
 
             svg.append("line")
                 .attr("x1", 0)
@@ -421,6 +430,13 @@ export function renderCombinedChart() {
                 .attr("x", -height / 2)
                 .style("text-anchor", "middle")
                 .text("Temperature (°C)");
+
+            svg.append("text")
+                .attr("transform", "rotate(90)")
+                .attr("y", -width - margin.right + 20)
+                .attr("x", height / 2)
+                .style("text-anchor", "middle")
+                .text("CO₂ (ppm) / Sea Level (mm)");
 
             // ---------------------------
             // Add Legend.
