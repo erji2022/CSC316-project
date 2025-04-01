@@ -150,41 +150,48 @@ function renderTreemap(metric, data, treemapGroup, svgWidth, treemapHeight, colo
         for (const [region, countries] of nested) {
             // Compute region's average using all data points in the region.
             const regionData = Array.from(countries.values()).flat();
-            const regionAvg = d3.mean(regionData, d => d[metric]) || 0;
+            const validRegionData = regionData.filter(d => !isNaN(d[metric]));
+            const regionAvg = d3.mean(validRegionData, d => d[metric]) || 0;
 
-            // Create the region node with its computed average.
-            const regionNode = { name: region, value: regionAvg, children: [] };
+            let sumValidCountryAverages = 0;
+            const countryEntries = [];
 
-            // First, compute each country's average.
-            let totalCountryAvg = 0;
-            const countryNodes = [];
+            // Compute valid country averages
             for (const [country, values] of countries) {
-                const countryAvg = d3.mean(values, d => d[metric]) || 0;
-                totalCountryAvg += countryAvg;
-                countryNodes.push({ name: country, avg: countryAvg });
+                const validValues = values.filter(d => !isNaN(d[metric]));
+                if (validValues.length === 0) continue;
+                const countryAvg = d3.mean(validValues, d => d[metric]);
+                countryEntries.push({country, avg: countryAvg});
+                sumValidCountryAverages += countryAvg;
             }
 
-            // Now scale each country's average so that the sum equals the region average.
-            countryNodes.forEach(c => {
-                // Avoid division by zero.
-                c.value = totalCountryAvg ? (c.avg / totalCountryAvg) * regionAvg : 0;
-                delete c.avg;
-            });
+            if (countryEntries.length === 0) continue;
 
-            regionNode.children = countryNodes;
+            // Normalize country values to sum to regionAvg
+            const scalingFactor = sumValidCountryAverages > 0 ?
+                regionAvg / sumValidCountryAverages : 0;
+
+            // Region node gets children but NO EXPLICIT VALUE
+            const regionNode = {
+                name: region,
+                children: countryEntries.map(({country, avg}) => ({
+                    name: country,
+                    value: avg * scalingFactor // Children values sum to regionAvg
+                }))
+            };
             rootData.children.push(regionNode);
         }
 
-        // Build the hierarchy using the computed values.
+        // Build hierarchy: sum() propagates children values to parents
         root = d3.hierarchy(rootData, d => d.children)
-            .sum(d => d.value)
+            .sum(d => d.value || 0) // Handle leaves (countries) and internal nodes (regions)
             .sort((a, b) => b.value - a.value);
 
-        // Apply the treemap layout.
+        // Use squarify tiling
         d3.treemap()
-            .tile(d3.treemapBinary)  // or d3.treemapSliceDice, d3.treemapDice, etc.
+            .tile(d3.treemapSquarify)
             .size([svgWidth, treemapHeight])
-            .padding(0)  // set to 0 or small to reduce gaps
+            .padding(0)
             (root);
     }
 
