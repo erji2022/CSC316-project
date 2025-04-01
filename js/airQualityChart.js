@@ -11,6 +11,7 @@ let globalAverages = [];
 const metrics = ['pm25_concentration', 'no2_concentration', 'pm10_concentration'];
 let currentMetric = metrics[0];
 let currentCountry = 'GLOBAL';
+let currentTreemapView = 'country'; // either 'country' or 'region'
 
 const regionNames = {
     'Afr': 'Africa',
@@ -125,29 +126,72 @@ function renderRegionLegend(legendGroup, regions, colorScale) {
 
 // Renders the treemap visualization based on the selected metric.
 function renderTreemap(metric, data, treemapGroup, svgWidth, treemapHeight, colorScale) {
-    const nested = d3.group(data, d => d.region, d => d.country_name);
-    const rootData = { name: "AirQuality", children: [] };
-    for (const [region, countries] of nested) {
-        const regionNode = { name: region, children: [] };
-        for (const [country, values] of countries) {
+    let root;
+    if (currentTreemapView === 'region') {
+        // For region view, aggregate data by region.
+        const nested = d3.group(data, d => d.region);
+        const rootData = { name: "AirQuality", children: [] };
+        for (const [region, values] of nested) {
             const avgValue = d3.mean(values, d => d[metric]) || 0;
-            regionNode.children.push({
-                name: country,
-                value: avgValue
-            });
+            rootData.children.push({ name: region, value: avgValue });
         }
-        rootData.children.push(regionNode);
+        root = d3.hierarchy(rootData)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value);
+        d3.treemap()
+            .tile(d3.treemapBinary)
+            .size([svgWidth, treemapHeight])
+            .padding(2)(root);
+    } else {
+        // Group data by region and then by country.
+        const nested = d3.group(data, d => d.region, d => d.country_name);
+        const rootData = { name: "AirQuality", children: [] };
+
+        for (const [region, countries] of nested) {
+            // Compute region's average using all data points in the region.
+            const regionData = Array.from(countries.values()).flat();
+            const regionAvg = d3.mean(regionData, d => d[metric]) || 0;
+
+            // Create the region node with its computed average.
+            const regionNode = { name: region, value: regionAvg, children: [] };
+
+            // First, compute each country's average.
+            let totalCountryAvg = 0;
+            const countryNodes = [];
+            for (const [country, values] of countries) {
+                const countryAvg = d3.mean(values, d => d[metric]) || 0;
+                totalCountryAvg += countryAvg;
+                countryNodes.push({ name: country, avg: countryAvg });
+            }
+
+            // Now scale each country's average so that the sum equals the region average.
+            countryNodes.forEach(c => {
+                // Avoid division by zero.
+                c.value = totalCountryAvg ? (c.avg / totalCountryAvg) * regionAvg : 0;
+                delete c.avg;
+            });
+
+            regionNode.children = countryNodes;
+            rootData.children.push(regionNode);
+        }
+
+        // Build the hierarchy using the computed values.
+        root = d3.hierarchy(rootData, d => d.children)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value);
+
+        // Apply the treemap layout.
+        d3.treemap()
+            .tile(d3.treemapBinary)  // or d3.treemapSliceDice, d3.treemapDice, etc.
+            .size([svgWidth, treemapHeight])
+            .padding(0)  // set to 0 or small to reduce gaps
+            (root);
     }
 
-    const root = d3.hierarchy(rootData)
-        .sum(d => d.value)
-        .sort((a, b) => b.value - a.value);
-    d3.treemap()
-        .size([svgWidth, treemapHeight])
-        .padding(2)(root);
-
+    // For both views, we display the leaf nodes.
+    const nodesToRender = root.leaves();
     const nodes = treemapGroup.selectAll('.treenode')
-        .data(root.leaves(), d => d.data.name);
+        .data(nodesToRender, d => d.data.name);
 
     nodes.exit()
         .transition()
@@ -164,9 +208,15 @@ function renderTreemap(metric, data, treemapGroup, svgWidth, treemapHeight, colo
     nodesEnter.append('rect')
         .attr('width', d => d.x1 - d.x0)
         .attr('height', d => d.y1 - d.y0)
-        .attr('fill', d => colorScale(d.parent.data.name))
+        .attr('fill', d => {
+            // In region view, color by region; in country view, color by the parent region.
+            return currentTreemapView === 'region'
+                ? colorScale(d.data.name)
+                : colorScale(d.parent.data.name);
+        })
         .attr('stroke', 'black')
         .on('click', (event, d) => {
+            // In both views, clicking updates the line chart.
             updateLineChart(d.data.name);
             currentCountry = d.data.name;
         });
@@ -179,9 +229,17 @@ function renderTreemap(metric, data, treemapGroup, svgWidth, treemapHeight, colo
         .text(d => {
             const nodeWidth = d.x1 - d.x0;
             const nodeHeight = d.y1 - d.y0;
-            const abbr = abbreviateCountry(d.data.name);
-            const textWidthApprox = abbr.length * 7;
-            return (nodeWidth > textWidthApprox + 8 && nodeHeight > 18) ? abbr : '';
+            if (currentTreemapView === 'region') {
+                // Use full region names (or your mapping, e.g., regionNames)
+                const label = regionNames[d.data.name] || d.data.name;
+                const textWidthApprox = label.length * 7;
+                return (nodeWidth > textWidthApprox + 8 && nodeHeight > 18) ? label : '';
+            } else {
+                // Abbreviate country names as before.
+                const abbr = abbreviateCountry(d.data.name);
+                const textWidthApprox = abbr.length * 7;
+                return (nodeWidth > textWidthApprox + 8 && nodeHeight > 18) ? abbr : '';
+            }
         });
 
     const nodesMerge = nodesEnter.merge(nodes);
@@ -195,29 +253,40 @@ function renderTreemap(metric, data, treemapGroup, svgWidth, treemapHeight, colo
         .duration(750)
         .attr('width', d => d.x1 - d.x0)
         .attr('height', d => d.y1 - d.y0)
-        .attr('fill', d => colorScale(d.parent.data.name));
+        .attr('fill', d => {
+            return currentTreemapView === 'region'
+                ? colorScale(d.data.name)
+                : colorScale(d.parent.data.name);
+        });
 
     nodesMerge.select('text')
         .text(d => {
             const nodeWidth = d.x1 - d.x0;
             const nodeHeight = d.y1 - d.y0;
-            const abbr = abbreviateCountry(d.data.name);
-            const textWidthApprox = abbr.length * 7;
-            return (nodeWidth > textWidthApprox + 8 && nodeHeight > 18) ? abbr : '';
+            if (currentTreemapView === 'region') {
+                const label = regionNames[d.data.name] || d.data.name;
+                const textWidthApprox = label.length * 7;
+                return (nodeWidth > textWidthApprox + 8 && nodeHeight > 18) ? label : '';
+            } else {
+                const abbr = abbreviateCountry(d.data.name);
+                const textWidthApprox = abbr.length * 7;
+                return (nodeWidth > textWidthApprox + 8 && nodeHeight > 18) ? abbr : '';
+            }
         });
 }
 
 // Updates the line chart based on the selected country.
-function updateLineChart(countryName) {
+function updateLineChart(selectedName) {
     const containerDiv = d3.select('#vis3');
     const containerWidth = containerDiv.node().getBoundingClientRect().width - RIGHT_OFFSET;
     const availableWidth = containerWidth - margin.left - margin.right;
     window.chartWidth = availableWidth;
 
     d3.select('#vis3 svg').attr('width', containerWidth + RIGHT_OFFSET);
+    window.chartTitle.text(selectedName === 'GLOBAL' ? 'Global Pollutant Trends' : `${selectedName} Pollutant Trends`);
     window.chartTitle.attr('x', availableWidth / 2);
     window.lineLegendGroup.attr('transform', `translate(${availableWidth * 0.85}, ${margin.top})`);
-    window.globalButton.style("display", countryName === 'GLOBAL' ? "none" : "block");
+    window.globalButton.style("display", selectedName === 'GLOBAL' ? "none" : "block");
 
     let tooltip = d3.select("body").select(".tooltip");
     if (tooltip.empty()) {
@@ -233,25 +302,44 @@ function updateLineChart(countryName) {
             .style("opacity", 0);
     }
 
-    let cData = countryName === 'GLOBAL' ? globalAverages : globalData.filter(d => d.country_name === countryName);
+    let cData;
+    if (selectedName === 'GLOBAL') {
+        cData = globalAverages;
+    } else {
+        // Determine whether the selection is a region or a country.
+        // Check if any record has a matching region.
+        const isRegion = globalData.some(d => d.region === selectedName);
+        if (isRegion) {
+            // Aggregate data for the selected region.
+            const filtered = globalData.filter(d => d.region === selectedName);
+            cData = Array.from(d3.group(filtered, d => d.year), ([year, values]) => ({
+                year: +year,
+                pm25_concentration: d3.mean(values, d => d.pm25_concentration),
+                no2_concentration: d3.mean(values, d => d.no2_concentration),
+                pm10_concentration: d3.mean(values, d => d.pm10_concentration)
+            }));
+        } else {
+            // Otherwise, assume it is a country.
+            cData = globalData.filter(d => d.country_name === selectedName);
+            if (cData.length > 0) {
+                cData = Array.from(d3.group(cData, d => d.year), ([year, values]) => ({
+                    year: +year,
+                    pm25_concentration: d3.mean(values, d => d.pm25_concentration),
+                    no2_concentration: d3.mean(values, d => d.no2_concentration),
+                    pm10_concentration: d3.mean(values, d => d.pm10_concentration)
+                }));
+            }
+        }
+    }
+    // (The rest of the line chart update code remains as before.)
     if (cData.length === 0) {
-        window.chartTitle.text(`No data available for ${countryName}`);
+        window.chartTitle.text(`No data available for ${selectedName}`);
         window.linesGroup.selectAll('path').remove();
         window.xAxisGroup.selectAll('*').remove();
         window.yAxisGroup.selectAll('*').remove();
         window.linesGroup.selectAll('.data-point').remove();
         return;
     }
-    if (countryName !== 'GLOBAL') {
-        cData = Array.from(d3.group(cData, d => d.year), ([year, values]) => ({
-            year: +year,
-            pm25_concentration: d3.mean(values, d => d.pm25_concentration),
-            no2_concentration: d3.mean(values, d => d.no2_concentration),
-            pm10_concentration: d3.mean(values, d => d.pm10_concentration)
-        }));
-    }
-
-    window.chartTitle.text(`${countryName}`);
     cData.sort((a, b) => d3.ascending(a.year, b.year));
 
     const xDomain = d3.extent(cData, d => d.year);
@@ -326,7 +414,7 @@ function updateLineChart(countryName) {
         .attr("fill-opacity", d => d.pollutant === currentMetric ? 1 : 0.3)
         .on("mouseover", (event, d) => {
             tooltip.transition().duration(200).style("opacity", 0.9);
-            tooltip.html(`<strong>Country:</strong> ${countryName}<br><strong>Year:</strong> ${d.year}<br><strong>${d.pollutant}:</strong> ${d.value}`)
+            tooltip.html(`<strong>${selectedName}:</strong> ${d.year}<br><strong>${d.pollutant}:</strong> ${d.value}`)
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 28) + "px");
         })
@@ -352,6 +440,7 @@ function initializeVisualization() {
     const fullWidth = containerDiv.node().getBoundingClientRect().width;
     const containerWidth = fullWidth - RIGHT_OFFSET; // Reserve space for dots
     const availableWidth = containerWidth - margin.left - margin.right;
+    let colorScale;
 
     // Create controls first
     const controls = containerDiv.append('div')
@@ -377,10 +466,55 @@ function initializeVisualization() {
         .style('border-radius', '4px')
         .style('border', 'none')
         .style('cursor', 'pointer');
+    metricSelect.selectAll('option')
+        .data(metrics)
+        .enter()
+        .append('option')
+        .attr('value', d => d)
+        .property('selected', d => d === currentMetric)
+        .text(d => {
+            const labelMapping = {
+                'pm25_concentration': 'PM2.5 (µg/m³)',
+                'no2_concentration': 'NO₂ (ppm)',
+                'pm10_concentration': 'PM10 (µg/m³)'
+            };
+            return labelMapping[d];
+        });
 
-    // Create SVG with reduced width
+    // New view toggle control
+    const viewToggleContainer = controls.append('div')
+        .style('display', 'flex')
+        .style('align-items', 'center')
+        .style('gap', '5px');
+    viewToggleContainer.append('label')
+        .attr('for', 'viewToggle')
+        .style('color', 'white')
+        .style('font-size', '14px')
+        .text('View:');
+    const viewSelect = viewToggleContainer.append('select')
+        .attr('id', 'viewToggle')
+        .style('padding', '8px 12px')
+        .style('border-radius', '4px')
+        .style('border', 'none')
+        .style('cursor', 'pointer');
+    viewSelect.selectAll('option')
+        .data(['Country', 'Region'])
+        .enter()
+        .append('option')
+        .attr('value', d => d.toLowerCase())
+        .text(d => d);
+    // When the toggle changes, update the current view and re-render
+    viewSelect.on('change', function() {
+        const newWidth = containerDiv.node().getBoundingClientRect().width - RIGHT_OFFSET;
+        window.chartWidth = newWidth - margin.left - margin.right;
+        currentTreemapView = this.value;
+        updateLineChart(currentCountry);
+        renderTreemap(currentMetric, globalData, treemapGroup, newWidth, treemapHeight, colorScale);
+    });
+
+    // Create SVG and set up groups (same as before)
     const svg = containerDiv.append('svg')
-        .attr('width', containerWidth) // Not full width
+        .attr('width', containerWidth)
         .attr('height', svgHeight)
         .style('background', '#222')
         .style('margin-bottom', '50px');
@@ -470,8 +604,6 @@ function initializeVisualization() {
             d.year = +d.year;
         });
 
-        // AirQualityTrends.js (continued from previous code)
-
         rawData = rawData.filter(d => d.year && (
             !isNaN(d.pm25_concentration) ||
             !isNaN(d.pm10_concentration) ||
@@ -488,28 +620,13 @@ function initializeVisualization() {
 
         const regionsSet = new Set(rawData.map(d => d.region));
         const regions = Array.from(regionsSet);
-        const colorScale = d3.scaleOrdinal()
+        colorScale = d3.scaleOrdinal()
             .domain(regions)
             .range(d3.schemeCategory10);
 
         renderRegionLegend(legendGroup, regions, colorScale);
 
-        metricSelect.selectAll('option')
-            .data(metrics)
-            .enter()
-            .append('option')
-            .attr('value', d => d)
-            .property('selected', d => d === currentMetric)
-            .text(d => {
-                const labelMapping = {
-                    'pm25_concentration': 'PM2.5 (µg/m³)',
-                    'no2_concentration': 'NO₂ (ppm)',
-                    'pm10_concentration': 'PM10 (µg/m³)'
-                };
-                return labelMapping[d];
-            });
-
-        // When the dropdown selection changes, update the current metric and re-render.
+        // When metric changes, update both the treemap and line chart.
         metricSelect.on('change', function() {
             currentMetric = this.value;
             const newWidth = containerDiv.node().getBoundingClientRect().width - RIGHT_OFFSET;
@@ -518,6 +635,7 @@ function initializeVisualization() {
             updateLineChart(currentCountry);
         });
 
+        // Initial rendering (default view is country view)
         renderTreemap(currentMetric, globalData, treemapGroup, containerWidth, treemapHeight, colorScale);
         updateLineChart('GLOBAL');
         window.addEventListener('resize', () => {
