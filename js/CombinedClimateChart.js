@@ -1,4 +1,4 @@
-// CombinedChart.js
+// CombinedClimateChart.js
 // This module creates a single chart that shows:
 // - Temperature (bars, left y-axis)
 // - CO₂ (line + circles, right y-axis in ppm)

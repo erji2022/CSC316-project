@@ -1,4 +1,4 @@
-export class PieChart {
+export class PlasticWasteChart {
     constructor(parentElement, data) {
         this.parentElement = parentElement;
         this.data = data;

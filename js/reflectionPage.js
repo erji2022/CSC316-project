@@ -1,6 +1,6 @@
-// page5.js
-export function initPage5() {
-    const pageElement = document.querySelector('#page4');
+// reflectionPage.js
+export function initReflectionPage() {
+    const pageElement = document.querySelector('#reflectionPage');
 
     // Set up the Restart Story button to scroll back to the top (Introduction Page)
     const restartBtn = document.getElementById('restartBtn');

@@ -1,10 +1,14 @@
 import {ScrollManager} from './scroll.js';
-import {initPage0} from './page0.js';
-import {initPage1} from './page1.js';
-import {initPage2} from './page2.js';
-import {initPage3} from './page3.js';
-import {initPage4} from './page4.js';
-import {initPage5} from './page5.js';
+import {initTitlePage} from './titlePage.js';
+import {initClimateChangeVisPage} from './climateChangeVisPage.js';
+import {initAirQualityVisPage} from './airQualityVisPage.js';
+import {initPlasticWasteVisPage} from './plasticWasteVisPage.js';
+import {initWaterQualityVisPage} from './waterQualityVisPage.js';
+import {initReflectionPage} from './reflectionPage.js';
+import {initAirQualityImgPage} from "./airQualityImgPage.js";
+import {initClimateChangeImgPage} from "./climateChangeImgPage.js";
+import {initPlasticWasteImgPage} from "./plasticWasteImgPage.js";
+import {initWaterQualityImgPage} from "./waterQualityImgPage.js";
 
 // Initialize scroll manager
 const scrollManager = new ScrollManager();
@@ -12,10 +16,14 @@ window.scrollManager = scrollManager;
 
 // Initialize all page-specific code when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    initPage0();
-    initPage1();
-    initPage2();
-    initPage3();
-    initPage4();
-    initPage5();
+    initTitlePage();
+    initClimateChangeImgPage();
+    initClimateChangeVisPage();
+    initAirQualityImgPage();
+    initAirQualityVisPage();
+    initPlasticWasteImgPage();
+    initPlasticWasteVisPage();
+    initWaterQualityImgPage();
+    initWaterQualityVisPage();
+    initReflectionPage();
 });

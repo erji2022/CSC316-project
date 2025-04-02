@@ -1,7 +1,7 @@
-// page3.js
-import { PieChart } from "./pieChart.js";
-export function initPage3() {
-    const pageElement = document.querySelector('#page3');
+// plasticWasteVisPage.js
+import { PlasticWasteChart } from "./plasticWasteChart.js";
+export function initPlasticWasteVisPage() {
+    const pageElement = document.querySelector('#plasticWasteVisPage');
 
     function initializeVisualizations() {
         d3.csv("data/waste.csv").then(function(data) {
@@ -16,7 +16,7 @@ export function initPage3() {
             });
     
             // Initialize Pie Chart inside 'vis5'
-            new PieChart("vis5", data);
+            new PlasticWasteChart("vis5", data);
         }).catch(function(err) {
             console.log("Error loading data:", err);
         });

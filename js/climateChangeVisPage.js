@@ -1,10 +1,10 @@
-// page1.js
+// climateChangeVisPage.js
 import {renderTempCO2Chart} from "./TemperatureCO2Chart.js";
 import {renderTempSeaLevelChart} from "./TemperatureSeaLevelChart.js";
-import {renderCombinedChart} from "./CombinedChart.js";
+import {renderCombinedChart} from "./CombinedClimateChart.js";
 
-export function initPage1() {
-    const pageElement = document.querySelector('#page1');
+export function initClimateChangeVisPage() {
+    const pageElement = document.querySelector('#climateChangeVisPage');
 
     // Initialize Visualizations for Climate Change Insights
     function initializeVisualizations() {
