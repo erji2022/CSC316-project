@@ -445,12 +445,16 @@ export function renderCombinedChart() {
                 .attr("class", "legend")
                 .attr("transform", `translate(${width - 150},20)`);
 
-            legend.append("rect")
-                .attr("x", 0)
-                .attr("y", 337)
-                .attr("width", 10)
-                .attr("height", 10)
-                .attr("fill", "tomato");
+            const a = 0, y = 337, w = 10, h = 10;
+
+            legend.append("polygon")
+                .attr("points", `${a},${y} ${a + w},${y} ${a},${y + h}`)
+                .attr("fill", "orange");
+
+            legend.append("polygon")
+                .attr("points", `${a + w},${y} ${a + w},${y + h} ${a},${y + h}`)
+                .attr("fill", "steelblue");
+
             legend.append("text")
                 .attr("x", 15)
                 .attr("y", 347)
