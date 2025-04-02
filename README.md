@@ -112,7 +112,7 @@ Data for the project is sourced from reputable organizations:
     - [Global Temperature Data](https://climate.nasa.gov/vital-signs/global-temperature/)
     - [CO₂ Concentration Data](https://climate.nasa.gov/vital-signs/carbon-dioxide/)
 
-- **CO₂ Sustainability Data:**
+- **CO₂ Supplementary Data:**
 
   Data from 1800 to 1954 is sourced from [here](https://sealevel.info/co2.html).
 
