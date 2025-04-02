@@ -181,5 +181,5 @@ body {
 
 #airQualityVisPage {
     position: relative;
-    width: calc(100% - 40px); /* Reserve space for dots */
+    width: calc(100%); /* Reserve space for dots */
 }
