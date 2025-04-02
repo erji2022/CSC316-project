@@ -92,9 +92,15 @@ CSC316-project/
   Orchestrates the initialization of individual pages and the scroll navigation manager.
 
 - **Visualization Modules (inside `js/`):**  
-  Each file (e.g., `airQualityChart.js`, `CombinedChart.js`, `phHeatmap.js`, `pieChart.js`) handles the loading,
-  processing, and rendering of its corresponding data visualization. These modules include interactivity like tooltips,
-  filtering, and sorting.
+  Each file (e.g., `airQualityChart.js`, `CombinedChart.js`, `pH.js`, `pieChart.js`) handles the loading, processing,
+  and rendering of its corresponding data visualization. These modules include interactivity like tooltips, filtering,
+  and sorting.
+
+- **Page Modules (`page0.js` – `page5.js`):**  
+  These files are responsible for initializing and managing content for each specific page of the interactive narrative.
+  Each page module sets up its unique DOM elements, binds necessary event listeners, and calls upon visualization
+  modules as needed. This modular structure ensures that each section of the story (from introduction through
+  conclusion) is handled independently, keeping the code organized and maintainable.
 
 ---
 
@@ -106,17 +112,26 @@ Data for the project is sourced from reputable organizations:
     - [Global Temperature Data](https://climate.nasa.gov/vital-signs/global-temperature/)
     - [CO₂ Concentration Data](https://climate.nasa.gov/vital-signs/carbon-dioxide/)
 
+- **CO₂ Sustainability Data:**
+
+  Data from 1800 to 1954 is sourced from [here](https://sealevel.info/co2.html).
+
 - **WHO Ambient Air Quality Database:**  
-  Provides data on PM2.5, NO₂, and PM10 levels.
+  Provides [data](https://www.who.int/publications/m/item/who-ambient-air-quality-database-(update-jan-2024)) on PM2.5,
+  NO₂, and PM10 levels.
 
 - **Plastic Waste Data:**  
-  Sourced from datasets available on KAPSARC and Kaggle.
+  Sourced from datasets available
+  on [KAPSARC](https://datasource.kapsarc.org/explore/dataset/global-plastic-waste/export/?disjunctive.year)
+  and [Kaggle](https://www.kaggle.com/datasets/prajwaldongre/global-plastic-waste-2023-a-country-wise-analysis).
 
 - **Sea Level Data:**  
-  Includes datasets from DataHub and other global studies.
+  Includes datasets from [DataHub](https://datahub.io/core/sea-level-rise) and other global studies.
 
 - **Water Quality Data:**  
-  Collected from the GEMStat portal and other environmental monitoring agencies.
+  Collected from
+  the [GEMStat](https://portal.gemstat.org/applications/public.html?publicuser=PublicUser#gemstat/Stations) portal and
+  other environmental monitoring agencies.
 
 For details on data cleaning and processing, please refer to
 our [Process Book](https://docs.google.com/document/d/1h1r1S4xlMGs3ylMiNXfg9rkoJ5Mz3CvG8sUni-EFgtE/edit?tab=t.0#heading=h.uc0363rq9aec).
@@ -163,7 +178,7 @@ libraries via CDN.
 
 **Water Quality Analysis (Page 4):**
 
-- **phHeatmap.js:**  
+- **pH.js:**  
   Renders a heatmap showing average water pH values by station over selected year ranges. A dropdown filter allows users
   to focus on specific time periods, and tooltips display station-specific details.
 
@@ -189,7 +204,7 @@ our [Process Book PDF](https://docs.google.com/document/d/1h1r1S4xlMGs3ylMiNXfg9
   [https://your-deployed-webpage.com](https://your-deployed-webpage.com) *(replace with actual URL)*
 
 - **Screencast Video:**  
-  [https://your-screencast-video.com](https://your-screencast-video.com) *(replace with actual URL)*
+  [Our Planet at a Crossroads: An Interactive Data Journey](https://drive.google.com/file/d/1uxrWqVpcrnrk6wjTXe5oOWIQ2B2l8dqh/view?usp=sharing)
 
 ---
 
