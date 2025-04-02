@@ -143,7 +143,7 @@ our [Process Book](https://docs.google.com/document/d/1h1r1S4xlMGs3ylMiNXfg9rkoJ
 This project is deployed as a static HTML website. Simply open the deployed `index.html` in any modern web browser to
 experience the interactive visualizations.
 
-- **URL:** [https://your-deployed-webpage.com](https://your-deployed-webpage.com) *(replace with actual URL)*
+- **URL:** [Our Planet at a Crossroads](https://csc316-project-production.up.railway.app/)
 
 No local installation or server setup is required—just a compatible browser and an internet connection to load external
 libraries via CDN.
@@ -201,10 +201,10 @@ our [Process Book PDF](https://docs.google.com/document/d/1h1r1S4xlMGs3ylMiNXfg9
 ## Live Demo & Screencast
 
 - **Live Website:**  
-  [https://your-deployed-webpage.com](https://your-deployed-webpage.com) *(replace with actual URL)*
+  [Our Planet at a Crossroads](https://csc316-project-production.up.railway.app/)
 
 - **Screencast Video:**  
-  [Our Planet at a Crossroads: An Interactive Data Journey](https://drive.google.com/file/d/1uxrWqVpcrnrk6wjTXe5oOWIQ2B2l8dqh/view?usp=sharing)
+  [Link to Presentation](https://drive.google.com/file/d/1uxrWqVpcrnrk6wjTXe5oOWIQ2B2l8dqh/view?usp=sharing)
 
 ---
 
