@@ -13,7 +13,7 @@
 <div class="scroll-container" id="scroll-container">
 
     <!-- Page 0: Introduction & Hook -->
-    <div class="page" id="page0">
+    <div class="page" id="titlePage">
         <div class="row">
             <h1 class="page-title">Our Planet at a Glance</h1>
         </div>
@@ -32,32 +32,39 @@
         </div>
     </div>
 
-    <!-- Page 1: Global Warming -->
-    <div class="page" id="page1">
+    <!-- Page 1: Global Warming Intro-->
+    <div class="page climateChange" id="climateChangeImgPage">
+        <div class="row">
+            <h1 class="page-title">Climate Change</h1>
+        </div>
+        <div class="row story-container">
+            <div class="col-md-12">
+                <p>
+                    Global warming is not a distant threat—it is a reality unfolding before our eyes.
+                    Driven largely by human-induced emissions and deforestation, the Earth's atmosphere is trapping more heat than ever before.
+                </p>
+                <p>
+                    Over the last century, measurable increases in temperature have reshaped weather patterns, disrupted ecosystems, and threatened human health.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="page climateChange" id="climateChangeVisPage">
         <div class="row">
             <h1 class="page-title">Climate Change Trends</h1>
         </div>
         <div class="row story-container" style="max-width: 1000px;">
             <div class="col-md-12">
                 <p>
-                    Global warming is one of the most pressing challenges of our time, driven largely by human-induced
-                    changes to the Earth’s atmosphere. This visualization presents long-term trends in global
-                    temperature, atmospheric CO₂ levels, and sea
-                    level rise, offering a clear view of how these indicators have evolved together over recent decades.
+                    The visualization below presents a comprehensive look at how key climate indicators have shifted over the past century.
+                    By tracking global temperature, atmospheric CO₂ levels, and sea level rise, we can observe the intertwined effects of climate change.
+                </p>
+                <p>
+                    Consider the broader implications for coastal communities, biodiversity, and global economies as you study these trends.
                 </p>
             </div>
         </div>
         <div class="row visualization-container g-4">
-<!--            <div class="col-md-6 visualization-col">-->
-<!--                <h5 class="vis-title">Temperature & CO₂ Trends</h5>-->
-<!--                <div id="vis1" class="vis-placeholder">-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="col-md-6 visualization-col">-->
-<!--                <h5 class="vis-title">Temperature & Sea Level Trends</h5>-->
-<!--                <div id="vis2" class="vis-placeholder">-->
-<!--                </div>-->
-<!--            </div>            -->
             <div class="col-md-12 visualization-col" style="margin-top: 12px;">
                 <h5 class="vis-title">Tracking Temperature, CO₂, and Sea Level Changes Over the Last Century</h5>
                 <div id="visCombined" class="vis-placeholder" style="width: 1000px; height: 500px;">
@@ -66,21 +73,29 @@
         </div>
     </div>
 
+    <div class="page airQuality" id="airQualityImgPage">
+        <div class="row">
+            <h1 class="page-title">Air Quality</h1>
+        </div>
+        <div class="row story-container" style="max-width: 1000px;">
+            <div class="col-md-12">
+                <p>
+                    Clean air is essential for healthy living, yet millions of people worldwide face the consequences of polluted skies.
+                    Fine particulate matter, especially PM2.5, poses severe health risks and is a direct outcome of industrialization and urban growth.
+                </p>
+            </div>
+        </div>
+    </div>
     <!-- Page 2: Air Quality Degradation -->
-    <div class="page" id="page2">
+    <div class="page airQuality" id="airQualityVisPage">
         <div class="row">
             <!-- Left column: Title and Story -->
             <div class="col-md-3">
                 <h1 class="page-title">Air Quality Degradation: Polluted Skies</h1>
+
                 <p>
-                    Air pollution poses a severe risk to public health. PM2.5, in particular, can cause serious
-                    respiratory diseases and increase the mortality rate.
-                    Despite some decreases in overall pollution levels, PM2.5 exposure remains many times higher than
-                    what the WHO recommends.
-                <p>
-                <p>
-                    Explore the Tree Map to compare the averages between regions and the trends of each country.
-                    See how each region and country are  contributing to air pollution of the globe.
+                    Explore the Tree Map to compare the averages between regions, and between countries within these regions.
+                    See the trends of each country, and how each region and country are contributing to air pollution of the globe.
                 </p>
             </div>
             <!-- Right column: Tree Map -->
@@ -93,15 +108,31 @@
     </div>
 
     <!-- Page 3: Plastic Waste -->
-    <div class="page" id="page3">
+    <div class="page plasticWaste" id="plasticWasteImgPage">
+        <div class="row">
+            <h1 class="page-title">Plastic Waste</h1>
+        </div>
+        <div class="row story-container" style="max-width: 1000px;">
+            <div class="col-md-12">
+                <p>
+                    The rise of plastic consumption has led to an unprecedented accumulation of waste in our natural environment.
+                    Plastic waste is visible in every corner—from urban landscapes to remote oceanic regions.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="page plasticWaste" id="plasticWasteVisPage">
         <div class="row">
             <h1 class="page-title">Plastic Waste: A Growing Crisis</h1>
         </div>
         <div class="row story-container">
             <div class="col-md-12">
                 <p>
-                    Plastic waste has become one of the most visible signs of our environmental mismanagement. This page
-                    examines global plastic waste generation and its distribution.
+                    The data below maps the extensive distribution of plastic waste across the globe.
+                    It illustrates not only how much plastic is being generated but also where it ends up.
+                </p>
+                <p>
+                    By interacting with the data, you can gain insights into how plastic waste is distributed globally and its potential impacts on both human and ecological health.
                 </p>
             </div>
         </div>
@@ -116,16 +147,31 @@
     </div>
 
     <!-- Page 4: Water Quality -->
-    <div class="page" id="page4">
+    <div class="page waterQuality" id="waterQualityImgPage">
+        <div class="row">
+            <h1 class="page-title">Water Quality</h1>
+        </div>
+        <div class="row story-container" style="max-width: 1000px;">
+            <div class="col-md-12">
+                <p>
+                    Water is the foundation of life, yet its purity is increasingly compromised by pollution and unsustainable practices.
+                    Every drop of water carries with it the legacy of industrial, agricultural, and urban contaminants.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="page waterQuality" id="waterQualityVisPage">
         <div class="row">
             <h1 class="page-title">Water Quality: Deteriorating Resources</h1>
         </div>
         <div class="row story-container">
             <div class="col-md-12">
                 <p>
-                    Water quality is crucial for life, yet many regions are experiencing rapid degradation. This page
-                    focuses on trends in water quality metrics such as pH levels, highlighting areas in need of urgent
-                    attention.
+                    The visualization below tracks shifts in water quality over time by examining key indicators like pH levels.
+                    These metrics provide a snapshot of how human activities have altered our water systems.
+                </p>
+                <p>
+                    As you review the trends, consider the broader implications for ecosystems, agriculture, and human health.
                 </p>
             </div>
         </div>
@@ -151,19 +197,21 @@
     </div>
 
     <!-- Page 4: Conclusion & Call-to-Action -->
-    <div class="page" id="page5">
+    <div class="page" id="reflectionPage">
         <div class="row">
             <h1 class="page-title">Reflect & Act</h1>
         </div>
         <div class="row story-container">
             <div class="col-md-12">
                 <p>
-                    Our interactive journey reveals the interconnectedness of climate change, air quality, and waste
-                    management. The data calls on each of us to reflect on our actions and support sustainable
-                    practices.
+                    Our interactive journey has unveiled the deep interconnectedness of climate change, air quality, plastic waste, and water quality.
+                    The data and narratives provided here underscore the profound impact of human activities on our planet.
                 </p>
                 <p>
-                    Join the conversation and help drive the change our planet urgently needs.
+                    Now, more than ever, it is critical to reflect on these realities and to embrace sustainable practices that safeguard our future.
+                </p>
+                <p>
+                    We invite you to join the conversation, support initiatives for change, and take personal steps toward a more resilient world.
                 </p>
                 <button id="restartBtn" class="btn btn-primary">Restart Story</button>
             </div>

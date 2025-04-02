@@ -1,8 +1,8 @@
-// page4.js
+// waterQualityVisPage.js
 
-import { renderPHHeatmap } from "./pH.js";
-export function initPage4() {
-    const pageElement = document.querySelector('#page4');
+import { renderPHHeatmap } from "./pHHeatMap.js";
+export function initWaterQualityVisPage() {
+    const pageElement = document.querySelector('#waterQualityVisPage');
 
     function initializeVisualizations() {
         // Heatmap for Water Quality (pH Levels)

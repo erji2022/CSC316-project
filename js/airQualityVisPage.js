@@ -1,8 +1,8 @@
-// page2.js
+// airQualityVisPage.js
 import { initAirQualityTrends } from "./airQualityChart.js";
 
-export function initPage2() {
-    const pageElement = document.querySelector('#page2');
+export function initAirQualityVisPage() {
+    const pageElement = document.querySelector('#airQualityVisPage');
     function initializeVisualizations() {
         initAirQualityTrends();
     }
